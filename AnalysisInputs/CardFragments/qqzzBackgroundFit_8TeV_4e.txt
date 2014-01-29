@@ -1,0 +1,17 @@
+### background functions ###
+qqZZshape a0_bkgd   111.175
+qqZZshape a1_bkgd   26.2411
+qqZZshape a2_bkgd   129.717
+qqZZshape a3_bkgd   0.0525159
+qqZZshape a4_bkgd   185.871
+qqZZshape a5_bkgd   10.9035
+qqZZshape a6_bkgd   34.9001
+qqZZshape a7_bkgd   0.147975
+qqZZshape a8_bkgd   56.7739
+qqZZshape a9_bkgd   0.104314
+qqZZshape a10_bkgd  98.4563
+qqZZshape a11_bkgd  -6.93802
+qqZZshape a12_bkgd  5.99109
+qqZZshape a13_bkgd  0.105768
+
+
