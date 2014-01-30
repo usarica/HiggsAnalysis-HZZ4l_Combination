@@ -10,9 +10,9 @@ if test -d $1; then MASS=$1; else echo "Usage: $0 mass [what ]"; exit 1; fi;
 cd $MASS; shift
 MATCH=$1;
 
-OPTIONS=""
+OPTIONS="--X-rtd TMCSO_AdaptivePseudoAsimov"
 if [[ "$STRICT" == 1 ]]; then
-    OPTIONS="--minimizerTolerance=0.0001"
+    OPTIONS="$OPTIONS --minimizerTolerance=0.0001"
 fi;
 
 LM="300"
@@ -44,8 +44,9 @@ if [[ "$1" != "" ]] && test -f $1; then
     NAM=$(echo $1 | sed -e s/comb_*// -e s/.root//   | tr '[a-z]' '[A-Z]')
     if [[ "$UPD" == "1" ]]; then test ${1/.root/.log.$WHAT} -nt $1 && return; fi;
     [[ "$COMBINE_NO_LOGFILES" != "1" ]] && DO_LOG="tee -a ${1/.root/.log}.$WHAT$POST" || DO_LOG="dd of=/dev/null"
+    echo combine $* -n ${NAM}_${WHAT}${POST} -m $MASS $OPTIONS
     combine $* -n ${NAM}_${WHAT}${POST} -m $MASS $OPTIONS 2>&1 | $DO_LOG
-    echo "Done $WHAT for $NAM at $MASS"
+    echo "Done $WHAT for $NAM at $MASS ($STRICT)"
 else
     echo "Missing workspace $1 at mass $MASS"; exit 1; 
 fi;

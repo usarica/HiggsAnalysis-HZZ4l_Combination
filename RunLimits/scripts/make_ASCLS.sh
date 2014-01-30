@@ -23,7 +23,7 @@ if test -d $1; then MASS=$1; else echo "Usage: $0 mass [what ]"; exit 1; fi;
 cd $MASS; shift
 MATCH=$1;
 
-OPTIONS="$MINIM --minosAlgo=stepping"
+OPTIONS="$MINIM --minosAlgo=stepping --X-rtd TMCSO_AdaptivePseudoAsimov"
 if [[ "$TASK" == "singlePoint" ]]; then
     OPTIONS="$OPTIONS --singlePoint=1.0 "
 else
@@ -54,6 +54,7 @@ function run {
     if test -f $1; then
          echo "Runnining $TASK asymptotic frequentist limits for $NAM at $MASS. ";
          [[ "$COMBINE_NO_LOGFILES" != "1" ]] && DO_LOG="tee ${1/.root/.log}.$MYWHAT" || DO_LOG="dd of=/dev/null" 
+	 echo combine -M Asymptotic $* -n ${NAM}_${MYWHAT} -m $MASS $OPTS
          combine -M Asymptotic $* -n ${NAM}_${MYWHAT} -m $MASS $OPTS 2>&1 | $DO_LOG
     fi;
 }
