@@ -6,7 +6,7 @@ HZZ4L combination package
 This package can be checked out with:
 
 ```
-git clone https://github.com/cms-analysis/HiggsAnalysis-HZZ4l_Combination.py HZZ4l_Combination
+git clone https://github.com/cms-analysis/HiggsAnalysis-HZZ4l_Combination HZZ4l_Combination
 ```
 
 To update this package from the release
