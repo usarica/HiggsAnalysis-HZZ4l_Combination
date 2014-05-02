@@ -188,25 +188,25 @@ class properties_datacardClass_phase:
         CMS_zz4l_mass = ROOT.RooRealVar(CMS_zz4l_mass_name,CMS_zz4l_mass_name,self.low_M,self.high_M)    
         CMS_zz4l_mass.setBins(bins)
 
-        x_name = "CMS_zz4l_fg4"
+        x_name = "CMS_zz4l_fai1"
         x = ROOT.RooRealVar(x_name,x_name,0.,0.,1.)
         x.setBins(bins)
 
-        phix_name = "CMS_zz4l_fg4phi"
+        phix_name = "CMS_zz4l_fai1phi"
         phix = ROOT.RooRealVar(phix_name,phix_name,-math.pi,math.pi)
         phix.setBins(bins)
 
-        y_name = "CMS_zz4l_fg2"
+        y_name = "CMS_zz4l_fai2"
         y = ROOT.RooRealVar(y_name,y_name,0.,1.)
         y.setBins(bins)
         y.Print("v")
 
-        phiy_name = "CMS_zz4l_fg2phi"
+        phiy_name = "CMS_zz4l_fai2phi"
         phiy = ROOT.RooRealVar(phiy_name,phiy_name,-math.pi,math.pi)
         phiy.setBins(bins)
 
-        D1Name = "CMS_zz4l_pseudoKD"
-        D2Name = "CMS_zz4l_dcp"
+        D1Name = "CMS_zz4l_KD1"
+        D2Name = "CMS_zz4l_KD2"
         D3Name = "CMS_zz4l_smd"
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
@@ -454,22 +454,22 @@ class properties_datacardClass_phase:
         templateSigName = "{0}_{2:.0f}TeV/{1}_{0}.root".format(self.templateDir,self.appendName, self.sqrts)#templates3D_AdapSmoothMirror_Signal_{1}.root
         sigTempFile = ROOT.TFile(templateSigName)
         Sig_T_1 = sigTempFile.Get("template_0Plus")
-        Sig_T_2 = sigTempFile.Get("template_0Minus")
-        Sig_T_3 = sigTempFile.Get("template_0PlusQ2")
-        Sig_T_4 = sigTempFile.Get("template_0p0mInt0")
-        Sig_T_5 = sigTempFile.Get("template_0p0Q2Int0")
+        Sig_T_2 = sigTempFile.Get("template_0PlusQ2")
+        Sig_T_3 = sigTempFile.Get("template_0Minus")
+        Sig_T_4 = sigTempFile.Get("template_0p0Q2Int0")
+        Sig_T_5 = sigTempFile.Get("template_0p0mInt0")
         Sig_T_6 = sigTempFile.Get("template_0m0Q2Int0")
-        Sig_T_7 = sigTempFile.Get("template_0p0mInt90")
-        Sig_T_8 = sigTempFile.Get("template_0p0Q2Int90")
+        Sig_T_7 = sigTempFile.Get("template_0p0Q2Int90")
+        Sig_T_8 = sigTempFile.Get("template_0p0mInt90")
         Sig_T_9 = sigTempFile.Get("template_0m0Q2Int90")
 
         templateSigName = "{0}_{2:.0f}TeV/{1}_{0}_ResScaleUp.root".format(self.templateDir,self.appendName, self.sqrts)
         sigTempFile_ResUp = ROOT.TFile(templateSigName)
         Sig_T_1_ResUp = sigTempFile_ResUp.Get("template_0Plus")
-        Sig_T_2_ResUp = sigTempFile_ResUp.Get("template_0Minus")
-        Sig_T_3_ResUp = sigTempFile_ResUp.Get("template_0PlusQ2")
-        Sig_T_4_ResUp = sigTempFile_ResUp.Get("template_0p0mInt0")
-        Sig_T_5_ResUp = sigTempFile_ResUp.Get("template_0p0Q2Int0")
+        Sig_T_2_ResUp = sigTempFile_ResUp.Get("template_0PlusQ2")
+        Sig_T_3_ResUp = sigTempFile_ResUp.Get("template_0Minus")
+        Sig_T_4_ResUp = sigTempFile_ResUp.Get("template_0p0Q2Int0")
+        Sig_T_5_ResUp = sigTempFile_ResUp.Get("template_0p0mInt0")
         Sig_T_6_ResUp = sigTempFile_ResUp.Get("template_0m0Q2Int0")
         Sig_T_7_ResUp = sigTempFile_ResUp.Get("template_0p0mInt90")
         Sig_T_8_ResUp = sigTempFile_ResUp.Get("template_0p0Q2Int90")
@@ -477,10 +477,10 @@ class properties_datacardClass_phase:
         templateSigName = "{0}_{2:.0f}TeV/{1}_{0}_ResScaleDown.root".format(self.templateDir,self.appendName, self.sqrts)
         sigTempFile_ResDown = ROOT.TFile(templateSigName)
         Sig_T_1_ResDown = sigTempFile_ResDown.Get("template_0Plus")
-        Sig_T_2_ResDown = sigTempFile_ResDown.Get("template_0Minus")
-        Sig_T_3_ResDown = sigTempFile_ResDown.Get("template_0PlusQ2")
-        Sig_T_4_ResDown = sigTempFile_ResDown.Get("template_0p0mInt0")
-        Sig_T_5_ResDown = sigTempFile_ResDown.Get("template_0p0Q2Int0")
+        Sig_T_2_ResDown = sigTempFile_ResDown.Get("template_0PlusQ2")
+        Sig_T_3_ResDown = sigTempFile_ResDown.Get("template_0Minus")
+        Sig_T_4_ResDown = sigTempFile_ResDown.Get("template_0p0Q2Int0")
+        Sig_T_5_ResDown = sigTempFile_ResDown.Get("template_0p0mInt0")
         Sig_T_6_ResDown = sigTempFile_ResDown.Get("template_0m0Q2Int0")
         Sig_T_7_ResDown = sigTempFile_ResDown.Get("template_0p0mInt90")
         Sig_T_8_ResDown = sigTempFile_ResDown.Get("template_0p0Q2Int90")
@@ -600,8 +600,13 @@ class properties_datacardClass_phase:
         print "T7 ",T7_integral.getVal()
         print "T8 ",T8_integral.getVal()
         print "T9 ",T9_integral.getVal()
-        #r_fa3_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0))*@1+abs(@0)*@2 + sqrt (abs(@0)*(1-abs(@0)))* (cos(@5)*@3 +sin(@5)*@4) )/@1",RooArgList(x,T1_integral,T2_integral, T4_integral, T5_integral, phi))
-        r_fa3_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0)-abs(@1))*@4+abs(@0)*@5+abs(@1)*@6 + sqrt (abs(@0)*(1-abs(@0)-abs(@1)))*(cos(@2)*@7 +sin(@2)*@8) + sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*(cos(@3)*@9 +sin(@3)*@10) + sqrt(abs(@1)*abs(@0))*(cos(@2-@3)*@11 +sin(@2-@3)*@12) )/@4",RooArgList(x,y,phix,phiy,T1_integral,T2_integral,T3_integral,T4_integral,T5_integral,T6_integral,T7_integral,T8_integral,T9_integral))
+        r_fai_pures_norm_Name = "sig_PuresNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
+        r_fai_realints_norm_Name = "sig_RealIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
+        r_fai_imagints_norm_Name = "sig_ImagIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
+        r_fai_pures_norm = ROOT.RooFormulaVar(r_fai_pures_norm_Name,r_fai_pures_norm_Name,"( (1-abs(@0)-abs(@1))*@2+abs(@0)*@3+abs(@1)*@4 )/@2",RooArgList(x,y,T1_integral,T2_integral,T3_integral))
+        r_fai_realints_norm = ROOT.RooFormulaVar(r_fai_realints_norm_Name,r_fai_realints_norm_Name,"( sgn(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*cos(@2)*@4 + sgn(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*cos(@3)*@5 + sgn(@0*@1)*sqrt(abs(@1)*abs(@0))*cos(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T4_integral,T5_integral,T6_integral,T1_integral))
+        r_fai_imagints_norm = ROOT.RooFormulaVar(r_fai_imagints_norm_Name,r_fai_imagints_norm_Name,"( sgn(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*sin(@2)*@4 + sgn(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*sin(@3)*@5 + sgn(@0*@1)*sqrt(abs(@1)*abs(@0))*sin(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T7_integral,T8_integral,T9_integral,T1_integral))
+        r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","@0+@1+@2",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm))
 
         ggHpdfName_syst1Up = "ggH_RooSpinZeroPdf_ResUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggHpdf_syst1Up = ROOT.HZZ4L_RooSpinZeroPdf_phase(ggHpdfName_syst1Up,ggHpdfName_syst1Up,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResUp_histfunc,Sig_T_2_ResUp_histfunc,Sig_T_4_ResUp_histfunc, Sig_T_5_ResUp_histfunc))
@@ -1440,7 +1445,7 @@ class properties_datacardClass_phase:
                 
                 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
-        getattr(w,'import')(r_fa3_norm) ### Should this be renamed?
+        getattr(w,'import')(r_fai_norm) ### Should this be renamed?
 
 
         #Sig_T_1.SetNameTitle("template_0Plus","template_0Plus")
