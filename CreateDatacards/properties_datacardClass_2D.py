@@ -609,9 +609,9 @@ class properties_datacardClass_phase:
         r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","@0+@1+@2",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm))
 
         ggHpdfName_syst1Up = "ggH_RooSpinZeroPdf_ResUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggHpdf_syst1Up = ROOT.HZZ4L_RooSpinZeroPdf_phase(ggHpdfName_syst1Up,ggHpdfName_syst1Up,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResUp_histfunc,Sig_T_2_ResUp_histfunc,Sig_T_4_ResUp_histfunc, Sig_T_5_ResUp_histfunc))
+        ggHpdf_syst1Up = ROOT.HZZ4L_RooSpinZeroPdf_2D(ggHpdfName_syst1Up,ggHpdfName_syst1Up,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResUp_histfunc,Sig_T_2_ResUp_histfunc,Sig_T_4_ResUp_histfunc, Sig_T_5_ResUp_histfunc))
         ggHpdfName_syst1Down = "ggH_RooSpinZeroPdf_ResDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggHpdf_syst1Down = ROOT.HZZ4L_RooSpinZeroPdf_phase(ggHpdfName_syst1Down,ggHpdfName_syst1Down,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResDown_histfunc,Sig_T_2_ResDown_histfunc,Sig_T_4_ResDown_histfunc,Sig_T_5_ResDown_histfunc))
+        ggHpdf_syst1Down = ROOT.HZZ4L_RooSpinZeroPdf_2D(ggHpdfName_syst1Down,ggHpdfName_syst1Down,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResDown_histfunc,Sig_T_2_ResDown_histfunc,Sig_T_4_ResDown_histfunc,Sig_T_5_ResDown_histfunc))
         
 
         ## ------------------ END 2D SIGNAL SHAPES FOR PROPERTIES ------------------------ ##
