@@ -11,6 +11,7 @@ import ROOT
 from array import array
 from properties_datacardClass import *
 from properties_datacardClass_phase import *
+from properties_datacardClass_2D import *
 from inputReader import *
 
 #define function for parsing options
