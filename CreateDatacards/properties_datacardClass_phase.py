@@ -188,18 +188,18 @@ class properties_datacardClass_phase:
         CMS_zz4l_mass = ROOT.RooRealVar(CMS_zz4l_mass_name,CMS_zz4l_mass_name,self.low_M,self.high_M)    
         CMS_zz4l_mass.setBins(bins)
 
-        x_name = "CMS_zz4l_fg4"
+        x_name = "CMS_zz4l_fai1"
 
         x = ROOT.RooRealVar(x_name,x_name,0.,0.,1.)
         x.setBins(bins)
 
-        phi_name = "CMS_zz4l_fg4phi"
+        phi_name = "CMS_zz4l_fai1phi"
         phi = ROOT.RooRealVar(phi_name,phi_name,-math.pi,math.pi)
         phi.setBins(bins)
         phi.Print("v")
 
-        D1Name = "CMS_zz4l_pseudoKD"
-        D2Name = "CMS_zz4l_dcp"
+        D1Name = "CMS_zz4l_KD1"
+        D2Name = "CMS_zz4l_KD2"
         D3Name = "CMS_zz4l_smd"
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
@@ -533,7 +533,7 @@ class properties_datacardClass_phase:
         print "T2 ",T2_integral.getVal()
         print "T4 ",T4_integral.getVal()
         print "T5 ",T5_integral.getVal()
-        r_fa3_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0))*@1+abs(@0)*@2 + sqrt (abs(@0)*(1-abs(@0)))* (cos(@5)*@3 +sin(@5)*@4) )/@1",RooArgList(x,T1_integral,T2_integral, T4_integral, T5_integral, phi))
+        r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0))*@1+abs(@0)*@2 + sign(@0)*sqrt (abs(@0)*(1-abs(@0)))* (cos(@5)*@3 +sin(@5)*@4) )/@1",RooArgList(x,T1_integral,T2_integral, T4_integral, T5_integral, phi))
 
         ggHpdfName_syst1Up = "ggH_RooSpinZeroPdf_ResUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggHpdf_syst1Up = ROOT.HZZ4L_RooSpinZeroPdf_phase(ggHpdfName_syst1Up,ggHpdfName_syst1Up,D1,D2,D3,x,phi,ROOT.RooArgList(Sig_T_1_ResUp_histfunc,Sig_T_2_ResUp_histfunc,Sig_T_4_ResUp_histfunc, Sig_T_5_ResUp_histfunc))
@@ -1372,7 +1372,7 @@ class properties_datacardClass_phase:
                 
                 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
-        getattr(w,'import')(r_fa3_norm) ### Should this be renamed?
+        getattr(w,'import')(r_fai_norm) ### Should this be renamed?
 
 
         #Sig_T_1.SetNameTitle("template_0Plus","template_0Plus")

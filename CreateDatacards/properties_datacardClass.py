@@ -188,13 +188,13 @@ class properties_datacardClass:
         CMS_zz4l_mass = ROOT.RooRealVar(CMS_zz4l_mass_name,CMS_zz4l_mass_name,self.low_M,self.high_M)    
         CMS_zz4l_mass.setBins(bins)
 
-        x_name = "CMS_zz4l_fg4"
+        x_name = "CMS_zz4l_fai1"
 
         x = ROOT.RooRealVar(x_name,x_name,-1.,1.)
         x.setBins(bins)
 
-        D1Name = "CMS_zz4l_pseudoKD"
-        D2Name = "CMS_zz4l_dcp"
+        D1Name = "CMS_zz4l_KD1"
+        D2Name = "CMS_zz4l_KD2"
         D3Name = "CMS_zz4l_smd"
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
@@ -599,7 +599,7 @@ class properties_datacardClass:
         T1_integral = ROOT.RooConstVar (T1_integralName,T1_integralName,Sig_T_1.Integral())
         T2_integral = ROOT.RooConstVar (T2_integralName,T2_integralName,Sig_T_2.Integral())
         T4_integral = ROOT.RooConstVar (T4_integralName,T4_integralName,Sig_T_4.Integral())
-        r_fa3_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0))*@1+abs(@0)*@2 + (@0>0 ? 1.: -1.)*sqrt (abs(@0)*(1-abs(@0)))*@3 )/@1",RooArgList(x,T1_integral,T2_integral, T4_integral))
+        r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","( (1-abs(@0))*@1+abs(@0)*@2 + sign(@0)*sqrt (abs(@0)*(1-abs(@0)))*@3 )/@1",RooArgList(x,T1_integral,T2_integral, T4_integral))
         #ggHpdf = ROOT.RooHistPdf(ggHpdfName,ggHpdfName,RooArgSet(D1,D2,D3),Sig_T_1_hist)
         #ggHpdf.Print("v")
         #ggHpdfName_syst1Up = "ggH_RooSpinZeroPdf_ResUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
@@ -1468,7 +1468,7 @@ class properties_datacardClass:
                 
                 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
-        getattr(w,'import')(r_fa3_norm) ### Should this be renamed?
+        getattr(w,'import')(r_fai_norm) ### Should this be renamed?
 
 
         #Sig_T_1.SetNameTitle("template_0Plus","template_0Plus")
