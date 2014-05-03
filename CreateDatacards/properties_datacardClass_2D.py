@@ -192,7 +192,7 @@ class properties_datacardClass_phase:
         x = ROOT.RooRealVar(x_name,x_name,0.,0.,1.)
         x.setBins(bins)
 
-        phix_name = "CMS_zz4l_fai1phi"
+        phix_name = "CMS_zz4l_phiai1"
         phix = ROOT.RooRealVar(phix_name,phix_name,-math.pi,math.pi)
         phix.setBins(bins)
 
@@ -201,7 +201,7 @@ class properties_datacardClass_phase:
         y.setBins(bins)
         y.Print("v")
 
-        phiy_name = "CMS_zz4l_fai2phi"
+        phiy_name = "CMS_zz4l_phiai2"
         phiy = ROOT.RooRealVar(phiy_name,phiy_name,-math.pi,math.pi)
         phiy.setBins(bins)
 
