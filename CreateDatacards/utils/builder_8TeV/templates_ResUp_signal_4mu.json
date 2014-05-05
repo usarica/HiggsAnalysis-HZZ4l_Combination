@@ -1,0 +1,253 @@
+// Configuration options
+{
+	"inputDirectory":"/afs/cern.ch/work/u/usarica/HZZ4l-125p6-FullAnalysis/LHC_8TeV/4mu/",
+	"outputFile":"/afs/cern.ch/work/u/usarica/scratch-0/CMSSW_6_1_1/src/fLambda1/TemplateBuilder/run/fL13D_D0+hDL1/templates/fLambda1_3D/8TeV/4mu_templates_ResUp.root",
+	// template definitions
+	"templates":[
+		// template 0+ no mirror
+		{
+			"name":"T_3D_1",
+			"files":[
+				"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+			"variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[0]",
+			"conserveSumOfWeights":true,
+			"selection":"ZZMass>=105.6 && ZZMass<140.6",
+			"assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]}
+			]
+		},
+		// template 0L1 no mirror
+		{
+			"name":"T_3D_2",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+			"variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[3]",
+			"conserveSumOfWeights":true,
+			"selection":"ZZMass>=105.6 && ZZMass<140.6",
+			"assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]}
+			]
+		},
+		// template 0+h no mirror
+		{
+			"name":"T_3D_3",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+			"variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[1]",
+			"conserveSumOfWeights":true,
+			"selection":"ZZMass>=105.6 && ZZMass<140.6",
+			"assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]}
+			]
+		},
+		// template fL1=0.5 
+		{
+			"name":"T_3D_4p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[7]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":3.968}
+			]
+		},
+		// template fL1=0.5i
+		{
+			"name":"T_3D_7p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[7]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":2.}//dummy
+			]
+		},
+
+		// template fa2=0.5 
+		{
+			"name":"T_3D_5p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[4]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":3.662}
+			]
+		},
+		// template fa2=0.5i
+		{
+			"name":"T_3D_8p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[15]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":2.}
+			]
+		},
+		// template fa2=fL1=0.5 
+		{
+			"name":"T_3D_6p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[25]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":3.678}
+			]
+		},
+		// template fa2=-0.5i, fL1=-0.5
+		{
+			"name":"T_3D_9p",
+			"files":[
+					"HZZ4lTree_H125p6_ShuffledSignalBkg.root"
+				],
+			"tree":"SelectedTree",
+      "variables":["D_g1Q2_phi0","D_g1_vs_g2_phi0","D_bkg_ResUp"],
+			"weight":"MC_CV_weight[26]",
+			"conserveSumOfWeights":true,
+      "selection":"ZZMass>=105.6 && ZZMass<140.6",
+      "assertion":"D_g1Q2_phi0 >= 0. && D_g1Q2_phi0 <= 1.",
+			"binning":{
+				"type":"fixed",
+				"bins":[50,0.,1.,50,0.,1.,50,0.,1.]
+			},
+			"postprocessing":[
+				{"type":"smooth", "kernel":"adaptive", "entriesperbin":35},
+				{"type":"reweight", "axes":[0,1,2]},
+				{"type":"rescale","factor":2.}
+			]
+		},
+
+		// template interference (use non-mirrored inputs), anti-mirror done afterwards
+		{
+			"name":"T_3D_4",
+			"templatesum":[
+				{"name":"T_3D_4p","factor":-1.},
+				{"name":"T_3D_1","factor":1.},
+				{"name":"T_3D_2","factor":1.}
+			]
+		},
+		{
+			"name":"T_3D_7",
+			"templatesum":[
+				{"name":"T_3D_7p","factor":-1.},
+				{"name":"T_3D_7p","factor":1.}
+			]
+		},
+		{
+			"name":"T_3D_5",
+			"templatesum":[
+				{"name":"T_3D_5p","factor":1.},
+				{"name":"T_3D_1","factor":-1.},
+				{"name":"T_3D_3","factor":-1.}
+			]
+		},
+		{
+			"name":"T_3D_8",
+			"templatesum":[
+				{"name":"T_3D_8p","factor":1.},
+				{"name":"T_3D_1","factor":-1.},
+				{"name":"T_3D_3","factor":-1.}
+			]
+		},
+		{
+			"name":"T_3D_6",
+			"templatesum":[
+				{"name":"T_3D_6p","factor":-1.},
+				{"name":"T_3D_2","factor":1.},
+				{"name":"T_3D_3","factor":1.}
+			]
+		},
+		{
+			"name":"T_3D_9",
+			"templatesum":[
+				{"name":"T_3D_9p","factor":1.},
+				{"name":"T_3D_2","factor":-1.},
+				{"name":"T_3D_3","factor":-1.}
+			]
+		}
+	]
+}
