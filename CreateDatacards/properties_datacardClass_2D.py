@@ -1475,9 +1475,9 @@ class properties_datacardClass_2D:
 
         ggHpdf.SetNameTitle("ggH","ggH")
         getattr(w,'import')(ggHpdf, ROOT.RooFit.RecycleConflictNodes())
-        ggHpdf_syst1Up.SetNameTitle("ggH_ScaleRes{0}Up".format(self.appendName),"ggH_ScaleRes{0}Up".format(self.appendName))
+        ggHpdf_syst1Up.SetNameTitle("ggH_Res{0}Up".format(self.appendName),"ggH_ScaleRes{0}Up".format(self.appendName))
         getattr(w,'import')(ggHpdf_syst1Up, ROOT.RooFit.RecycleConflictNodes())
-        ggHpdf_syst1Down.SetNameTitle("ggH_ScaleRes{0}Down".format(self.appendName),"ggH_ScaleRes{0}Down".format(self.appendName))
+        ggHpdf_syst1Down.SetNameTitle("ggH_Res{0}Down".format(self.appendName),"ggH_ScaleRes{0}Down".format(self.appendName))
         getattr(w,'import')(ggHpdf_syst1Down, ROOT.RooFit.RecycleConflictNodes())
         #ggHpdf_syst2Up.SetNameTitle("ggH_Scale{0}Up".format(self.appendName),"ggH_Scale{0}Up".format(self.appendName))
         #getattr(w,'import')(ggHpdf_syst2Up, ROOT.RooFit.RecycleConflictNodes())
