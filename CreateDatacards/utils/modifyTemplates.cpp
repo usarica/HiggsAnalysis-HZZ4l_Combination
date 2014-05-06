@@ -45,19 +45,17 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 			if ((f - 1) % 2 == 1) ctemplate_scaleres = ctemplate_scaleres + "Down";
 			hsig[9 * f + t] = (TH3F*) finput[f]->Get(ctemplate);
 
-			cout << "Receive template: " << hsig[9 * f + t]->GetName() << endl;
-
 			if (f == 1 || f == 2){
 				hsig_scaleres[9 * (f - 1) + t] = (TH3F*) hsig[9 * f + t]->Clone(ctemplate_scaleres);
 				hsig_scaleres[9 * (f - 1) + t]->SetTitle(ctemplate_scaleres);
-				cout << "Clone template " << hsig[9 * f + t]->GetName() << " as " << hsig_scaleres[9 * (f - 1) + t]->GetName() << endl;
 			};
 			if (f == 3 || f == 4){
 				hsig_scaleres[9 * (f - 3) + t]->Add(hsig[9 * f + t], 1.0);
-				cout << "Add template " << hsig[9 * f + t]->GetName() << " to " << hsig_scaleres[9 * (f - 3) + t]->GetName() << endl;
 			};
 		};
 	};
+	cout << "Integrals:\n"
+		<< "Template\tNominal\tUp\tDown" << endl;
 	for (int t = 0; t < 9; t++){
 		TString ccanvas = "validateSig_";
 		char tcode[2];
@@ -65,12 +63,13 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 		ccanvas = ccanvas + tcode;
 
 		foutput->WriteTObject(hsig[9 * 0 + t]);
+		cout << t+1 << '\t' << hsig[9 * 0 + t]->Integral() << '\t';
 		for (int f = 0; f < 2; f++){
 			hsig_scaleres[9 * f + t]->Add(hsig[9 * 0 + t], -1.0);
-			cout << "Add template (-1) x " << hsig[9 * 0 + t]->GetName() << " to " << hsig_scaleres[9 * f + t]->GetName() << endl;
 			foutput->WriteTObject(hsig_scaleres[9 * f + t]);
+			cout << hsig_scaleres[9 * f + t]->Integral() << '\t';
 		};
-
+		cout << endl;
 
 		TString ccanvas_xy = ccanvas + "_xy";
 		TCanvas* c = new TCanvas(ccanvas_xy,"",1600,1200);
@@ -127,8 +126,19 @@ void modifyBkgTemplates (TString dir, TString sqrts = "7TeV", TString channame =
 
 	TH3F* zx_up = (TH3F*) qqzz->Clone("template_ZX_Up");
 	TH3F* zx_down = (TH3F*) zx->Clone("template_ZX_Down");
-	zx_down->Multiply(zx);
-	zx_down->Divide(qqzz);
+	zx_up->SetNameTitle("template_ZX_Up","template_ZX_Up");
+	zx_down->SetNameTitle("template_ZX_Down","template_ZX_Down");
+	for (int binx = 1; binx <= zx_down->GetNbinsX(); binx++){
+		for (int biny = 1; biny <= zx_down->GetNbinsY(); biny++){
+			for (int binz = 1; binz <= zx_down->GetNbinsZ(); binz++){
+				double bincontent_zx = zx->GetBinContent(binx, biny, binz);
+				double bincontent_zxup = zx_up->GetBinContent(binx, biny, binz);
+				double bincontent = 2.0*bincontent_zx - bincontent_zxup;
+				if (bincontent <= 0) bincontent = 1.0e-40;
+				zx_down->SetBinContent(binx, biny, binz,bincontent);
+			};
+		};
+	};
 	zx_down->Scale(1.0/zx_down->Integral());
 
 	foutput->WriteTObject(ggzz);
@@ -197,13 +207,13 @@ void modifyBkgTemplates (TString dir, TString sqrts = "7TeV", TString channame =
 	finput->Close();
 }
 
-void modifyTemplates(TString dir){
+void modifyTemplates(TString dir, int processSig=1, int processBkg=1){
 	TString channame[3] = { "4mu","4e","2e2mu" };
 	TString sqrts[2] = { "7TeV","8TeV" };
 	for (int s = 0; s < 2; s++){
 		for (int f = 0; f < 3; f++){
-			modifyBkgTemplates(dir, sqrts[s], channame[f]);
-			modifySigTemplates(dir, sqrts[s], channame[f]);
+			if(processBkg==1) modifyBkgTemplates(dir, sqrts[s], channame[f]);
+			if(processSig==1) modifySigTemplates(dir, sqrts[s], channame[f]);
 		};
 	};
 }
