@@ -452,8 +452,8 @@ class properties_datacardClass_2D:
         ## -------------------- 2D SIGNAL SHAPES FOR PROPERTIES ------------------------- ##
 
         print '2D signal shapes for Properties'
-        mytemplateDir = "/afs/cern.ch/work/u/usarica/scratch-0/CMSSW_6_1_1/src/fLambda1/TemplateBuilder/run/fL13D_D0+hDL1/templates/fLambda1_3D/{0:.0f}TeV".format(self.sqrts)
-#        mytemplateDir = "{1}/{0:.0f}TeV".format(self.sqrts.self.templateDir)
+#        mytemplateDir = "/afs/cern.ch/work/u/usarica/scratch-0/CMSSW_6_1_1/src/fLambda1/TemplateBuilder/run/fL13D_D0+hDL1/templates/fLambda1_3D/{0:.0f}TeV".format(self.sqrts)
+        mytemplateDir = "{1}/{0:.0f}TeV".format(self.sqrts.self.templateDir) # Use templates2D/fLambda1_3D for example
         bkgTemplates_Nominal = "{0}_templates_Nominal_bkg.root".format(self.appendName)
         bkgTemplates_ScaleResUp = "{0}_templates_ResUp_bkg.root".format(self.appendName)
         bkgTemplates_ScaleResDown = "{0}_templates_ResDown_bkg.root".format(self.appendName)
