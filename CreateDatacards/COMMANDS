@@ -1,0 +1,29 @@
+
+### test2workspace.py
+## fai1 float [-1,1], others fixed
+text2workspace.py -m 125.6 hzz4l_allS.txt -P HiggsAnalysis.CombinedLimit.SpinZeroStructure:spinZeroHiggs -o hzz4l_allS_fai1.root  --PO="allowPMF"
+
+## fai1, phiai1 float, others fixed
+text2workspace.py -m 125.6 hzz4l_allS.txt -P HiggsAnalysis.CombinedLimit.SpinZeroStructure:spinZeroHiggs -o hzz4l_allS_fai1_phiai1.root --PO="phiai1Floating"
+
+## fai1, fai2 float [-1,1], others fixed
+text2workspace.py -m 125.6 hzz4l_allS.txt -P HiggsAnalysis.CombinedLimit.SpinZeroStructure:spinZeroHiggs -o hzz4l_allS_fai1_fai2.root  --PO="allowPMF,fai2Floating"
+
+## all float
+text2workspace.py -m 125.6 hzz4l_allS.txt -P HiggsAnalysis.CombinedLimit.SpinZeroStructure:spinZeroHiggs -o hzz4l_allS_all.root --PO="allowPMF,fai2Floating,phiai1Floating,phiai2Floating"
+
+
+### combine
+## fai1 float [-1,1], others fixed
+combine -M MultiDimFit hzz4l_allS_fai1.root -t -1 -S 1 --expectSignal=1 --algo=grid --points 200 -m 125.6 -n 2D_exp -v 3 --freezeNuis CMS_zz4l_fai2,CMS_zz4l_phiai1,CMS_zz4l_phiai2 --redefineSignalPOIs CMS_zz4l_fai1 --setPhysicsModelParameterRanges CMS_zz4l_fai1=-1,1
+
+## fai1, phiai1 float, others fixed
+combine -M MultiDimFit ../../hzz4l_allS_fai1_phiai1.root -t -1 -S 1 --expectSignal=1 --algo=grid --points 200 -m 125.6 -n 2D_exp -v 3 --freezeNuis CMS_zz4l_fai2,CMS_zz4l_phiai2 --redefineSignalPOIs CMS_zz4l_fai1 --setPhysicsModelParameterRanges CMS_zz4l_fai1=0,1
+
+## fai1, fai2 float [-1,1], others fixed
+combine -M MultiDimFit ../../hzz4l_allS_fai1_fai2.root -t -1 -S 1 --expectSignal=1 --algo=grid --points 200 -m 125.6 -n 2D_exp -v 3 --freezeNuis CMS_zz4l_phiai1,CMS_zz4l_phiai2 --redefineSignalPOIs CMS_zz4l_fai1 --setPhysicsModelParameterRanges CMS_zz4l_fai1=-1,1,CMS_zz4l_fai2=-1,1
+
+## all float
+combine -M MultiDimFit ../../hzz4l_allS_all.root -t -1 -S 1 --expectSignal=1 --algo=grid --points 200 -m 125.6 -n 2D_exp -v 3 --redefineSignalPOIs CMS_zz4l_fai1 --setPhysicsModelParameterRanges CMS_zz4l_fai1=0,1,CMS_zz4l_fai2=0,1
+
+
