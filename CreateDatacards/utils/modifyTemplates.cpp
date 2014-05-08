@@ -28,15 +28,18 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 	TString coutput = dir + "/" + sqrts + "/" + channame + "_templates_Modified_Nominal_ScaleResUpDown.root";
 	TFile* foutput = new TFile(coutput, "recreate");
 
-	TFile* finput[5];
-	TH3F* hsig[5 * 9];
-	TH3F* hsig_scaleres[2 * 9];
-	for (int f = 0; f < 5; f++){
+	const int kNumTemplates=9;
+	const int kNumSysts=5;
+
+	TFile* finput[kNumSysts];
+	TH3F* hsig[kNumSysts * kNumTemplates];
+	TH3F* hsig_scaleres[(kNumSysts-3) * kNumTemplates];
+	for (int f = 0; f < kNumSysts; f++){
 		finput[f] = new TFile(cinput[f], "read");
 		cout << "Reading file: " << finput[f]->GetName() << "..." << endl;
 
 		TString ctemplate_main = "T_3D_";
-		for (int t = 0; t < 9; t++){
+		for (int t = 0; t < kNumTemplates; t++){
 			char tcode[2];
 			sprintf(tcode, "%i", t+1);
 			TString ctemplate = ctemplate_main + tcode;
@@ -45,29 +48,44 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 			if ((f - 1) % 2 == 1) ctemplate_scaleres = ctemplate_scaleres + "Down";
 			hsig[9 * f + t] = (TH3F*) finput[f]->Get(ctemplate);
 
-			if (f == 1 || f == 2){
-				hsig_scaleres[9 * (f - 1) + t] = (TH3F*) hsig[9 * f + t]->Clone(ctemplate_scaleres);
-				hsig_scaleres[9 * (f - 1) + t]->SetTitle(ctemplate_scaleres);
+//			if (f == 1 || f == 2){
+			if (f == 1){
+				hsig_scaleres[kNumTemplates * (f - 1) + t] = (TH3F*) hsig[kNumTemplates * f + t]->Clone(ctemplate_scaleres);
+				hsig_scaleres[kNumTemplates * (f - 1) + t]->SetTitle(ctemplate_scaleres);
 			};
-			if (f == 3 || f == 4){
-				hsig_scaleres[9 * (f - 3) + t]->Add(hsig[9 * f + t], 1.0);
+			if (f == 2){
+				hsig_scaleres[kNumTemplates * (f - 1) + t] = (TH3F*) hsig[kNumTemplates * (f-1) + t]->Clone(ctemplate_scaleres);
+				hsig_scaleres[kNumTemplates * (f - 1) + t]->SetTitle(ctemplate_scaleres);
+			};
+//			if (f == 3 || f == 4){
+			if (f == 3){
+				hsig_scaleres[kNumTemplates * (f - 3) + t]->Add(hsig[kNumTemplates * f + t], 1.0);
+			};
+			if (f == 4){
+				hsig_scaleres[kNumTemplates * (f - 3) + t]->Add(hsig[kNumTemplates * (f-1) + t], 1.0);
 			};
 		};
 	};
 	cout << "Integrals:\n"
 		<< "Template\tNominal\tUp\tDown" << endl;
-	for (int t = 0; t < 9; t++){
+	for (int t = 0; t < kNumTemplates; t++){
 		TString ccanvas = "validateSig_";
 		char tcode[2];
 		sprintf(tcode, "%i", t+1);
 		ccanvas = ccanvas + tcode;
 
-		foutput->WriteTObject(hsig[9 * 0 + t]);
-		cout << t+1 << '\t' << hsig[9 * 0 + t]->Integral() << '\t';
-		for (int f = 0; f < 2; f++){
-			hsig_scaleres[9 * f + t]->Add(hsig[9 * 0 + t], -1.0);
-			foutput->WriteTObject(hsig_scaleres[9 * f + t]);
-			cout << hsig_scaleres[9 * f + t]->Integral() << '\t';
+		foutput->WriteTObject(hsig[kNumTemplates * 0 + t]);
+		cout << t+1 << '\t' << hsig[kNumTemplates * 0 + t]->Integral() << '\t';
+		for (int f = 0; f < 1; f++){
+			hsig_scaleres[kNumTemplates * f + t]->Add(hsig[kNumTemplates * 0 + t], -1.0);
+			foutput->WriteTObject(hsig_scaleres[kNumTemplates * f + t]);
+			cout << hsig_scaleres[kNumTemplates * f + t]->Integral() << '\t';
+		};
+		for (int f = 1; f < (kNumSysts-3); f++){
+			hsig_scaleres[kNumTemplates * f + t]->Scale(-1.0);
+			hsig_scaleres[kNumTemplates * f + t]->Add(hsig[kNumTemplates * 0 + t], 3.0);
+			foutput->WriteTObject(hsig_scaleres[kNumTemplates * f + t]);
+			cout << hsig_scaleres[kNumTemplates * f + t]->Integral() << '\t';
 		};
 		cout << endl;
 
@@ -75,39 +93,39 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 		TCanvas* c = new TCanvas(ccanvas_xy,"",1600,1200);
 		c->Divide(2,2);
 		c->cd(1);
-		hsig[9 * 0 + t]->Project3D("xy")->Draw("colz");
+		hsig[kNumTemplates * 0 + t]->Project3D("xy")->Draw("colz");
 		c->cd(2);
-		hsig_scaleres[9 * 0 + t]->Project3D("xy")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 0 + t]->Project3D("xy")->Draw("colz");
 		c->cd(3);
-		hsig_scaleres[9 * 1 + t]->Project3D("xy")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 1 + t]->Project3D("xy")->Draw("colz");
 		foutput->WriteTObject(c);
 		delete c;
 		TString ccanvas_xz = ccanvas + "_xz";
 		c = new TCanvas(ccanvas_xz,"",1600,1200);
 		c->Divide(2,2);
 		c->cd(1);
-		hsig[9 * 0 + t]->Project3D("xz")->Draw("colz");
+		hsig[kNumTemplates * 0 + t]->Project3D("xz")->Draw("colz");
 		c->cd(2);
-		hsig_scaleres[9 * 0 + t]->Project3D("xz")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 0 + t]->Project3D("xz")->Draw("colz");
 		c->cd(3);
-		hsig_scaleres[9 * 1 + t]->Project3D("xz")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 1 + t]->Project3D("xz")->Draw("colz");
 		foutput->WriteTObject(c);
 		delete c;
 		TString ccanvas_yz = ccanvas + "_yz";
 		c = new TCanvas(ccanvas_yz,"",1600,1200);
 		c->Divide(2,2);
 		c->cd(1);
-		hsig[9 * 0 + t]->Project3D("yz")->Draw("colz");
+		hsig[kNumTemplates * 0 + t]->Project3D("yz")->Draw("colz");
 		c->cd(2);
-		hsig_scaleres[9 * 0 + t]->Project3D("yz")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 0 + t]->Project3D("yz")->Draw("colz");
 		c->cd(3);
-		hsig_scaleres[9 * 1 + t]->Project3D("yz")->Draw("colz");
+		hsig_scaleres[kNumTemplates * 1 + t]->Project3D("yz")->Draw("colz");
 		foutput->WriteTObject(c);
 		delete c;
 	};
 
 	foutput->Close();
-	for (int f = 0; f < 5; f++) finput[f]->Close();
+	for (int f = 0; f < kNumSysts; f++) finput[f]->Close();
 }
 
 
