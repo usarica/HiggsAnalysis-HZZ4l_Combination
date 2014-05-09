@@ -570,7 +570,7 @@ class properties_datacardClass_2D:
         r_fai_pures_norm = ROOT.RooFormulaVar(r_fai_pures_norm_Name,r_fai_pures_norm_Name,"( (1-abs(@0)-abs(@1))*@2+abs(@0)*@3+abs(@1)*@4 )/@2",RooArgList(x,y,T1_integral,T2_integral,T3_integral))
         r_fai_realints_norm = ROOT.RooFormulaVar(r_fai_realints_norm_Name,r_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*cos(@2)*@4 + sign(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*cos(@3)*@5 + sign(@0*@1)*sqrt(abs(@1)*abs(@0))*cos(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T4_integral,T5_integral,T6_integral,T1_integral))
         r_fai_imagints_norm = ROOT.RooFormulaVar(r_fai_imagints_norm_Name,r_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*sin(@2)*@4 + sign(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*sin(@3)*@5 + sign(@0*@1)*sqrt(abs(@1)*abs(@0))*sin(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T7_integral,T8_integral,T9_integral,T1_integral))
-        r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","@0+@1+@2",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm))
+        r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","(abs(@3)+abs(@4))>1 ? 0. : TMath::Max(@0+@1+@2,0)",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,x,y))
 
         Sig_T_1_hist = ROOT.RooDataHist ("T_1_hist","", ROOT.RooArgList(D1,D2,D3),Sig_T_1)
         Sig_T_2_hist = ROOT.RooDataHist ("T_2_hist","", ROOT.RooArgList(D1,D2,D3),Sig_T_2)
