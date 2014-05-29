@@ -41,7 +41,7 @@ class HiggsCSandWidthFermi
 
  public:
 
-  HiggsCSandWidthFermi();
+  HiggsCSandWidthFermi(std::string fileLoc="include/txtFiles");
   ~HiggsCSandWidthFermi();
 
   double HiggsWidth(int ID,double mH,bool spline);
@@ -55,7 +55,7 @@ class HiggsCSandWidthFermi
 
   int N_BR;
   
-  std::string FileLoc;
+  std::string fileName;
 
 
 };

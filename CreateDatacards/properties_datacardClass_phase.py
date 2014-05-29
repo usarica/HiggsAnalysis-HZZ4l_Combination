@@ -1249,7 +1249,8 @@ class properties_datacardClass_phase:
         print " sigRate_ZH_Shape=",sigRate_ZH_Shape
         print " @@@@@@@ rfvSigRate_ttH = ",rfvSigRate_ttH.getVal()
         print " sigRate_ttH_Shape=",sigRate_ttH_Shape
-        print "Sum of sigRate_XYZ_Shape=",sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
+        sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
+        print "Sum of sigRate_XYZ_Shape=",sigRate_Total_Shape
         ## SET RATES TO 1 
         ## DC RATES WILL BE MULTIPLIED
         ## BY RATES IMPORTED TO WS
@@ -1258,7 +1259,12 @@ class properties_datacardClass_phase:
         #sigRate_WH_Shape = 1
         #sigRate_ZH_Shape = 1
         #sigRate_ttH_Shape = 1
-        sigRate_ggH_Shape += sigRate_VBF_Shape + sigRate_WH_Shape + sigRate_ZH_Shape + sigRate_ttH_Shape
+        sigRate_ggH_input = theInputs['ggH_rate']
+        print "ggH Rate: ",sigRate_ggH_input
+        if sigRate_ggH_input < 0:
+            sigRate_ggH_input=sigRate_ggH_Shape
+        sigRate_Total_Shape = sigRate_Total_Shape/sigRate_ggH_Shape*sigRate_ggH_input
+        sigRate_ggH_Shape=sigRate_Total_Shape
 
              
         ## ----------------------- BACKGROUND RATES ----------------------- ##

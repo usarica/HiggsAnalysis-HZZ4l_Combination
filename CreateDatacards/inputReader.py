@@ -45,6 +45,7 @@ class inputReader:
         self.ZH_SM_chan = True
         self.ttH_SM_chan = True
         # rates
+        self.ggH_rate = -999.9
         self.qqZZ_rate = -999.9
         self.ggZZ_rate = -999.9
         self.zjets_rate = -999.9
@@ -313,6 +314,9 @@ class inputReader:
             
             if f[0].lower().startswith("rate"):
                 
+                if f[1].lower().startswith("ggh"):
+                    self.ggH_rate = float(f[2])
+#                    if len(f) == 4: self.ggH_lumi = float(f[3])
                 if f[1].lower().startswith("qqzz"):
                     self.qqZZ_rate = float(f[2])
                     if len(f) == 4: self.qqZZ_lumi = float(f[3])
@@ -674,6 +678,7 @@ class inputReader:
             raise RuntimeError, "You cannot request to execute ALL signal channels and single channels at the same time. Check inputs!"
         if not self.goodEntry(self.sqrts): raise RuntimeError, "{0} is not set.  Check inputs!".format("sqrts")
 
+        if self.ggH_chan and not self.goodEntry(self.ggH_rate): raise RuntimeError, "{0} is not set.  Check inputs!".format("ggH_rate")
         if self.qqZZ_chan and not self.goodEntry(self.qqZZ_rate): raise RuntimeError, "{0} is not set.  Check inputs!".format("qqZZ_rate")
         if self.ggZZ_chan and not self.goodEntry(self.ggZZ_rate): raise RuntimeError, "{0} is not set.  Check inputs!".format("ggZZ_rate")
         if self.zjets_chan and not self.goodEntry(self.zjets_rate): raise RuntimeError, "{0} is not set.  Check inputs!".format("zjets_rate")
@@ -870,6 +875,7 @@ class inputReader:
         dict['ttbar'] = self.ttbar_chan
         dict['zbb'] = self.zbb_chan
        
+        dict['ggH_rate'] = self.ggH_rate
         dict['qqZZ_rate'] = self.qqZZ_rate
         dict['ggZZ_rate'] = self.ggZZ_rate
         dict['zjets_rate'] = self.zjets_rate
