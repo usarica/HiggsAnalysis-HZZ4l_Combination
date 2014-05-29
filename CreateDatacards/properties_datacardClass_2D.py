@@ -453,7 +453,7 @@ class properties_datacardClass_2D:
 
         print '2D signal shapes for Properties'
         mytemplateDir = "{1}/{0:.0f}TeV".format(self.sqrts,self.templateDir)
-        signalTemplates = "{0}_templates_Modified_InterfScratched_Nominal_ScaleResUpDown.root".format(self.appendName)
+        signalTemplates = "{0}_templates_Modified_Nominal_ScaleResUpDown.root".format(self.appendName)
         bkgTemplates = "{0}_templates_Modified_Nominal_bkg.root".format(self.appendName)
 
         templateSigName = "{0}/{1}".format(mytemplateDir,signalTemplates)
