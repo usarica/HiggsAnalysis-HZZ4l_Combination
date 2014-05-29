@@ -48,7 +48,7 @@ class HiggsCSandWidthSM4
 
  public:
 
-  HiggsCSandWidthSM4();
+  HiggsCSandWidthSM4(std::string fileLoc="include/txtFiles");
   ~HiggsCSandWidthSM4();
 
   double HiggsCS(int ID, double mH, double sqrts, bool spline);
@@ -73,6 +73,8 @@ class HiggsCSandWidthSM4
 
  private:
 
+  std::string fileName;
+
   double scratchMass;
   double BR[18][102];
   double CS[6][109];
@@ -91,7 +93,6 @@ class HiggsCSandWidthSM4
   int N_CSE;
   int N_BR_gg;
 
-  std::string FileLoc;
 
 
 };

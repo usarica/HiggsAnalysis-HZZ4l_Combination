@@ -18,7 +18,7 @@
 
 using namespace std;
 
-HiggsCSandWidthFermi::HiggsCSandWidthFermi()
+HiggsCSandWidthFermi::HiggsCSandWidthFermi(std::string fileLoc)
 {
 
   N_BR = 681;
@@ -26,9 +26,8 @@ HiggsCSandWidthFermi::HiggsCSandWidthFermi()
   ifstream file;
  
   // Read Widths into memory
-  FileLoc = "include/txtFiles/Higgs_BR_Fermiophobic.txt"; //directory of input file
-  const char* BranchRatioFileLoc = FileLoc.c_str(); 
-  file.open(BranchRatioFileLoc);
+  fileName = fileLoc+"/Higgs_BR_Fermiophobic.txt"; //directory of input file
+  file.open(fileName.c_str());
   for(int k = 0; k < N_BR; k++){
 
     file >> mass_BR[k] >> BR[7][k] >> BR[8][k] >> BR[9][k] >> BR[10][k] >> BR[11][k] >> BR[0][k];
@@ -121,7 +120,7 @@ double HiggsCSandWidthFermi::HiggsWidth(int ID, double mH, bool spline){
 	      double xmhWFF[indexWFF], sigWFF[indexWFF];
 	      xmhWFF[0]=mass_BR[i-1];xmhWFF[1]=mass_BR[i];xmhWFF[2]=mass_BR[i+1];xmhWFF[3]=mass_BR[i+2];
 	      sigWFF[0]=BR[ID][i-1]; sigWFF[1]=BR[ID][i]; sigWFF[2]=BR[ID][i+1]; sigWFF[3]=BR[ID][i+2];
-	      //gROOT->Reset();
+	      
 	      TGraph *graphWFF = new TGraph(indexWFF, xmhWFF, sigWFF);
 	      TSpline3 *gsWFF = new TSpline3("gsW",graphWFF);
 	      gsWFF->Draw();
@@ -137,7 +136,7 @@ double HiggsCSandWidthFermi::HiggsWidth(int ID, double mH, bool spline){
 	      double xmhWFF[indexWFF], sigWFF[indexWFF];
 	      xmhWFF[0]=mass_BR[i-1];xmhWFF[1]=mass_BR[i];xmhWFF[2]=mass_BR[i+1];xmhWFF[3]=mass_BR[i+2];
 	      sigWFF[0]=BR[0][i-1]; sigWFF[1]=BR[0][i]; sigWFF[2]=BR[0][i+1]; sigWFF[3]=BR[0][i+2];
-	      //gROOT->Reset();
+	      
 	      TGraph *graphWFF = new TGraph(indexWFF, xmhWFF, sigWFF);
 	      TSpline3 *gsWFF = new TSpline3("gsWFF",graphWFF);
 	      gsWFF->Draw();
@@ -149,7 +148,7 @@ double HiggsCSandWidthFermi::HiggsWidth(int ID, double mH, bool spline){
 	      double xmhPWFF[indexPWFF], sigPWFF[indexPWFF];
 	      xmhPWFF[0]=mass_BR[i-1];xmhPWFF[1]=mass_BR[i];xmhPWFF[2]=mass_BR[i+1];xmhPWFF[3]=mass_BR[i+2];
 	      sigPWFF[0]=BR[ID][i-1]; sigPWFF[1]=BR[ID][i]; sigPWFF[2]=BR[ID][i+1]; sigPWFF[3]=BR[ID][i+2];
-	      //gROOT->Reset();
+	      
 	      TGraph *graphPWFF = new TGraph(indexPWFF, xmhPWFF, sigPWFF);
 	      TSpline3 *gsPWFF = new TSpline3("gsPWFF",graphPWFF);
 	      gsPWFF->Draw();
@@ -228,7 +227,7 @@ double HiggsCSandWidthFermi::HiggsBR(int ID, double mH, bool spline){
 	  double xmhBRFF[indexBRFF], sigBRFF[indexBRFF];
 	  xmhBRFF[0]=mass_BR[i-1];xmhBRFF[1]=mass_BR[i];xmhBRFF[2]=mass_BR[i+1];xmhBRFF[3]=mass_BR[i+2];
 	  sigBRFF[0]=BR[ID][i-1]; sigBRFF[1]=BR[ID][i]; sigBRFF[2]=BR[ID][i+1]; sigBRFF[3]=BR[ID][i+2];
-	  //gROOT->Reset();
+	 
 	  TGraph *graphBRFF = new TGraph(indexBRFF, xmhBRFF, sigBRFF);
 	  TSpline3 *gsBRFF = new TSpline3("gsBRFF",graphBRFF);
 	  gsBRFF->Draw();

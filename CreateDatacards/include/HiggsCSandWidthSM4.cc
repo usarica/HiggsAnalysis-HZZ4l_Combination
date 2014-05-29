@@ -18,7 +18,7 @@
 
 using namespace std;
 
-HiggsCSandWidthSM4::HiggsCSandWidthSM4()
+HiggsCSandWidthSM4::HiggsCSandWidthSM4(std::string fileLoc)
 {
 
   N_BR = 102;
@@ -29,7 +29,8 @@ HiggsCSandWidthSM4::HiggsCSandWidthSM4()
   ifstream file;
   double scratchHgg;
   // Read Widths into memory
-  file.open("include/txtFiles/Higgs_BR_SM4.txt");
+  fileName = fileLoc+"/Higgs_BR_SM4.txt";
+  file.open(fileName.c_str());
   for(int k = 0; k < N_BR; k++){
 
     file >> mass_BR[k] >> BR[0][k] >> BR[1][k] >> BR[2][k] >> BR[3][k] >> BR[4][k] >> BR[5][k] >> BR[6][k] >> BR[7][k] >> scratchHgg >> BR[9][k]
@@ -40,7 +41,8 @@ HiggsCSandWidthSM4::HiggsCSandWidthSM4()
   file.close();
 
   // Read Widths into memory
-  file.open("include/txtFiles/Higgs_BR_SM4_Hgg.txt");
+  fileName = fileLoc+"/Higgs_BR_SM4_Hgg.txt";
+  file.open(fileName.c_str());
   for(int k = 0; k < N_BR_gg; k++){
 
     file >> mass_BR_gg[k] >> BR[8][k];
@@ -50,7 +52,8 @@ HiggsCSandWidthSM4::HiggsCSandWidthSM4()
   file.close();
 
   // Read CS into memory
-  file.open("include/txtFiles/HiggsCS_Official_SM4.txt");//directory of input file
+  fileName = fileLoc+"/HiggsCS_Official_SM4.txt";
+  file.open(fileName.c_str());
   for(int k = 0; k < N_CS; k++){
 
     file >> mass_XS[k] >> CS[ID_ggToH][k];// >> CS[ID_VBF][k] >> CS[ID_WH][k] >> CS[ID_ZH][k] >> CS[ID_ttH][k] >> CS[ID_Total][k];
@@ -60,7 +63,8 @@ HiggsCSandWidthSM4::HiggsCSandWidthSM4()
   }
   file.close();
 
-  file.open("include/txtFiles/HiggsCS_Error_Official_SM4.txt");//directory of input file                       
+  fileName = fileLoc+"/HiggsCS_Error_Official_SM4.txt";
+  file.open(fileName.c_str());
   for(int k = 0; k < N_CSE; k++){
 
     file >> scratchMass >> CSerrPlus[ID_ggToH][k] >> CSerrMinus[ID_ggToH][k] >> CSscaleErrPlus[ID_ggToH][k] >> CSscaleErrMinus[ID_ggToH][k]
