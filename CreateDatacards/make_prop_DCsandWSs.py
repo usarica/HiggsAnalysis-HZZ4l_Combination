@@ -76,9 +76,9 @@ def creationLoop(directory):
 
     if (opt.model== '1D'):
       myClass = properties_datacardClass()
-    if (opt.model== 'phase'):
+    elif (opt.model== 'phase'):
       myClass = properties_datacardClass_phase()
-    if (opt.model== '2D'):
+    elif (opt.model== '2D'):
       myClass = properties_datacardClass_2D()
     else:
       print 'Unknown model '+opt.model+'. Exiting.'
