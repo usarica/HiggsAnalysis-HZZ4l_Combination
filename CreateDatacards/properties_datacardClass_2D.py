@@ -1367,6 +1367,7 @@ class properties_datacardClass_2D:
             sigRate_ggH_input=sigRate_ggH_Shape
 	else:
 	    print "ggH Rate: ",sigRate_ggH_input
+	    sigRate_ggH_Shape=sigRate_ggH_input
 
         eff_qqH_input = theInputs['qqH_eff']
         if eff_qqH_input >= 0:
