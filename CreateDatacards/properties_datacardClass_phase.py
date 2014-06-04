@@ -1249,8 +1249,8 @@ class properties_datacardClass_phase:
         print " sigRate_ZH_Shape=",sigRate_ZH_Shape
         print " @@@@@@@ rfvSigRate_ttH = ",rfvSigRate_ttH.getVal()
         print " sigRate_ttH_Shape=",sigRate_ttH_Shape
-        sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
-        print "Sum of sigRate_XYZ_Shape=",sigRate_Total_Shape
+        sigRate_Total_Shape_analytical = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
+        print "Sum of analytical sigRate_XYZ_Shape=",sigRate_Total_Shape_analytical
         ## SET RATES TO 1 
         ## DC RATES WILL BE MULTIPLIED
         ## BY RATES IMPORTED TO WS
