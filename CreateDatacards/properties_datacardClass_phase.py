@@ -1259,12 +1259,22 @@ class properties_datacardClass_phase:
         #sigRate_WH_Shape = 1
         #sigRate_ZH_Shape = 1
         #sigRate_ttH_Shape = 1
+
         sigRate_ggH_input = theInputs['ggH_rate']
-        print "ggH Rate: ",sigRate_ggH_input
         if sigRate_ggH_input < 0:
             sigRate_ggH_input=sigRate_ggH_Shape
-        sigRate_Total_Shape = sigRate_Total_Shape/sigRate_ggH_Shape*sigRate_ggH_input
+	else:
+	    print "ggH Custom Rate: ",sigRate_ggH_input
+
+        eff_qqH_input = theInputs['qqH_eff']
+        if eff_qqH_input >= 0:
+	    print "qqH Custom Efficiency: ",eff_qqH_input
+	    sigRate_VBF_Shape=eff_qqH_input*CS_VBF*BR*1000.*self.lumi
+	    print "sigRate_VBF_Shape after custom eficiency: ",sigRate_VBF_Shape
+
+        sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
         sigRate_ggH_Shape=sigRate_Total_Shape
+	print "Total yield: ",sigRate_ggH_Shape
 
              
         ## ----------------------- BACKGROUND RATES ----------------------- ##

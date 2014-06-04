@@ -1217,6 +1217,10 @@ class properties_datacardClass_2D:
             print "CS_ggH: ",CS_ggH,", CS_VBF: ",CS_VBF,", CS_WH: ",CS_WH,", CS_ZH: ",CS_ZH
             print ", CS_ttH: ",CS_ttH,", BRH2e2mu: ",BRH2e2mu,", BRH4mu: ",BRH4mu,", BRH4e: ",BRH4e,", BRZZ: ",BRZZ
 
+        print "CS_ggH: ",CS_ggH,", CS_VBF: ",CS_VBF,", CS_WH: ",CS_WH,", CS_ZH: ",CS_ZH
+        print ", CS_ttH: ",CS_ttH,", BRH2e2mu: ",BRH2e2mu,", BRH4mu: ",BRH4mu,", BRH4e: ",BRH4e,", BRZZ: ",BRZZ
+
+
         
         ## SIG YIELDS
         sigRate_ggH = CS_ggH*BR*sigEfficiency_ggH*1000.*self.lumi
@@ -1347,8 +1351,8 @@ class properties_datacardClass_2D:
         print " sigRate_ZH_Shape=",sigRate_ZH_Shape
         print " @@@@@@@ rfvSigRate_ttH = ",rfvSigRate_ttH.getVal()
         print " sigRate_ttH_Shape=",sigRate_ttH_Shape
-        sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
-        print "Sum of sigRate_XYZ_Shape=",sigRate_Total_Shape
+        sigRate_Total_Shape_analytical = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
+        print "Sum of analytical sigRate_XYZ_Shape=",sigRate_Total_Shape_analytical
         ## SET RATES TO 1 
         ## DC RATES WILL BE MULTIPLIED
         ## BY RATES IMPORTED TO WS
@@ -1357,12 +1361,22 @@ class properties_datacardClass_2D:
         #sigRate_WH_Shape = 1
         #sigRate_ZH_Shape = 1
         #sigRate_ttH_Shape = 1
+
         sigRate_ggH_input = theInputs['ggH_rate']
-        print "ggH Rate: ",sigRate_ggH_input
         if sigRate_ggH_input < 0:
             sigRate_ggH_input=sigRate_ggH_Shape
-        sigRate_Total_Shape = sigRate_Total_Shape/sigRate_ggH_Shape*sigRate_ggH_input
+	else:
+	    print "ggH Rate: ",sigRate_ggH_input
+
+        eff_qqH_input = theInputs['qqH_eff']
+        if eff_qqH_input >= 0:
+	    print "qqH Custom Efficiency: ",eff_qqH_input
+	    sigRate_VBF_Shape=eff_qqH_input*CS_VBF*BR*1000.*self.lumi
+	    print "sigRate_VBF_Shape after custom eficiency: ",sigRate_VBF_Shape
+
+        sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
         sigRate_ggH_Shape=sigRate_Total_Shape
+	print "Total yield: ",sigRate_ggH_Shape
 
              
         ## ----------------------- BACKGROUND RATES ----------------------- ##
