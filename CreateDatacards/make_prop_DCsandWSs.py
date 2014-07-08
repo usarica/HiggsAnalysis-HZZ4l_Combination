@@ -26,6 +26,7 @@ def parseOptions():
     parser.add_option('-b', action='store_true', dest='noX', default=True ,help='no X11 windows')
     parser.add_option('-t', '--templateDir', type='string', dest='templateDir', default="templates2D" ,help='directory with 2D template histos')
     parser.add_option('-m', '--model', type='string', dest='model', default="1D" ,help='model: 1D, phase, 2D ')
+    parser.add_option('-r', '--datadir', type='string', dest='dataDirAppend', default="" ,help='dataDirAppend: Reference CMSdata folder per measurement')
 
     
     # store options and arguments as global variables
@@ -114,9 +115,9 @@ def creationLoop(directory):
 
             makeDirectory(directory+'/HCG/'+mhs)
             makeDirectory(directory+'/HCG_XSxBR/'+mhs)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt.templateDir)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt.templateDir)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt.templateDir)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt.templateDir,opt.dataDirAppend)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt.templateDir,opt.dataDirAppend)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt.templateDir,opt.dataDirAppend)
                 
             c += 1
             

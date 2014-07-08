@@ -99,7 +99,7 @@ class properties_datacardClass_phase:
             return falseVar
     
     # main datacard and workspace function
-    def makeCardsWorkspaces(self, theMH, theOutputDir, theInputs,theTemplateDir="templates2D"):
+    def makeCardsWorkspaces(self, theMH, theOutputDir, theInputs,theTemplateDir="templates2D",theDataAppendDir=""):
 
         ## --------------- SETTINGS AND DECLARATIONS --------------- ##
         DEBUG = False
@@ -112,6 +112,7 @@ class properties_datacardClass_phase:
         self.bkgMorph = theInputs['useCMS_zz4l_zjet']
         self.outputDir = theOutputDir
         self.templateDir = theTemplateDir
+        self.dataAppendDir = theDataAppendDir
 
         self.ggH_chan = theInputs['ggH']
         self.qqH_chan = theInputs['qqH']
@@ -1333,7 +1334,10 @@ class properties_datacardClass_phase:
 
         dataFileDir = "CMSdata"
         dataTreeName = "data_obs" 
-        dataFileName = "{0}/hzz{1}_{2}.root".format(dataFileDir,self.appendName,self.lumi)
+        if (self.dataAppendDir == ''):
+            dataFileName = "{0}/hzz{1}_{2}.root".format(dataFileDir,self.appendName,self.lumi)
+        else:
+            dataFileName = "{0}_{1}/hzz{2}_{3}.root".format(dataFileDir,self.dataAppendDir,self.appendName,self.lumi)
         if (DEBUG): print dataFileName," ",dataTreeName 
         data_obs_file = ROOT.TFile(dataFileName)
 
