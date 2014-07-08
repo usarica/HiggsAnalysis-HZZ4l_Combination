@@ -28,7 +28,7 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 	TString coutput = dir + "/" + sqrts + "/" + channame + "_templates_Modified_Nominal_ScaleResUpDown.root";
 	TFile* foutput = new TFile(coutput, "recreate");
 
-	const int kNumTemplates=9;
+	const int kNumTemplates=3;
 	const int kNumSysts=5;
 
 	TFile* finput[kNumSysts];
@@ -41,7 +41,8 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 		TString ctemplate_main = "T_3D_";
 		for (int t = 0; t < kNumTemplates; t++){
 			char tcode[2];
-			sprintf(tcode, "%i", t+1);
+			if(t!=kNumTemplates-1) sprintf(tcode, "%i", t+1);
+			else sprintf(tcode, "%i", t+2);
 			TString ctemplate = ctemplate_main + tcode;
 			TString ctemplate_scaleres = ctemplate + "_ScaleRes";
 			if ((f - 1) % 2 == 0) ctemplate_scaleres = ctemplate_scaleres + "Up";
@@ -71,7 +72,8 @@ void modifySigTemplates(TString dir, TString sqrts = "7TeV", TString channame = 
 	for (int t = 0; t < kNumTemplates; t++){
 		TString ccanvas = "validateSig_";
 		char tcode[2];
-		sprintf(tcode, "%i", t+1);
+		if(t!=kNumTemplates-1) sprintf(tcode, "%i", t+1);
+		else sprintf(tcode, "%i", t+2);
 		ccanvas = ccanvas + tcode;
 
 		foutput->WriteTObject(hsig[kNumTemplates * 0 + t]);
@@ -225,7 +227,7 @@ void modifyBkgTemplates (TString dir, TString sqrts = "7TeV", TString channame =
 	finput->Close();
 }
 
-void modifyTemplates(TString dir, int processSig=1, int processBkg=1){
+void modifyTemplates_1D(TString dir, int processSig=1, int processBkg=1){
 	TString channame[3] = { "4mu","4e","2e2mu" };
 	TString sqrts[2] = { "7TeV","8TeV" };
 	for (int s = 0; s < 2; s++){
