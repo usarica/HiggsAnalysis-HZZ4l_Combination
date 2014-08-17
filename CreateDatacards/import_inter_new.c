@@ -50,6 +50,14 @@ gROOT->SetStyle("Plain");
 		fh_o_inter.ReplaceAll ("0j","1j");
 		fvbf_sysname.ReplaceAll("0j","1j");
 	}
+	if(!EightTeV){
+		fhname.ReplaceAll ("8TeV","7TeV");
+		fh_altname.ReplaceAll ("8TeV","7TeV");
+		fh_intername.ReplaceAll ("8TeV","7TeV");
+//	  fh_o.ReplaceAll ("8TeV","7TeV");
+//		fh_o_inter.ReplaceAll ("8TeV","7TeV");
+		fvbf_sysname.ReplaceAll("8TeV","7TeV");
+	}
 	
   TFile *fh = new TFile(fhname,"read");
   TFile *fh_inter = new TFile(fh_intername,"read");
@@ -200,6 +208,7 @@ gROOT->SetStyle("Plain");
       T1->SetBinError(i+1,T1_o->GetBinError(i+1)*r1);
       T2->SetBinError(i+1,T2_o->GetBinError(i+1)*r2);
  	    T3->SetBinError(i+1,T3_o->GetBinError(i+1)*r3);
+			cout<< r1<<" "<<r2<<" "<<r3<<endl;
 			}
 
 			else {
@@ -324,9 +333,6 @@ gROOT->SetStyle("Plain");
 		cout<<sysname<<endl;
 		RooRealVar *sysrr=new RooRealVar(sysname,sysname,-7,7);	
 		coeffs.add(*sysrr);
-//		cout<<"Gaussian::"+sysname+"_Pdf("+sysname+"[-7,7], "+sysname+"_In[0,-7,7], 1)"<<endl;
-//		w.factory("Gaussian::"+sysname+"_Pdf("+sysname+"[-7,7], "+sysname+"_In[0,-7,7], 1)");
-
 		cout<<T1_statDown/T1_integral<<" "<<T1_statUp/T1_integral<<endl;
 		cout<<T2_statDown/T2_integral<<" "<<T2_statUp/T2_integral<<endl;
 		cout<<T3_statDown/T3_integral<<" "<<T3_statUp/T3_integral<<endl;
@@ -340,7 +346,6 @@ gROOT->SetStyle("Plain");
   }
 
 
-
   RooFormulaVar *ggH_norm=new RooFormulaVar("ggH__norm","TMath::Max( ( (1-abs(@0))*@1 + abs(@0)*@2 + sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*(@3-@1-@2))/@1 , 1.e-20 )*@4", RooArgList(x, *T1_const, *T2_const, *T3_const, extra_norm));
 pdflist.Print("v");	
 coeffs.Print("v");	
@@ -351,7 +356,7 @@ coeffs.Print("v");
   w.var("CMS_zz4l_alpha")->setVal(0.5);
 	
 	TString jetName= jet0 ? "0j_":"1j_";
-	TString EnergyName = EightTeV ? "_8TeV":"7TeV";
+	TString EnergyName = EightTeV ? "_8TeV":"_7TeV";
 	TString outfileName = "signal_inter_"+ jetName + EnergyName + ".root"; 
   w.writeToFile(outfileName);
 }
