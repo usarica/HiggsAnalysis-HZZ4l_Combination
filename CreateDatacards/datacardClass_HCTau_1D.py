@@ -100,10 +100,12 @@ class datacardClass_HCTau_1D:
             return falseVar
     
     # main datacard and workspace function
-    def makeCardsWorkspaces(self, theMH, theOutputDir, theInputs,theTemplateDir="templates2D",theDataAppendDir=""):
+    def makeCardsWorkspaces(self, theMH, theOutputDir, theInputs,options):
 
         ## --------------- SETTINGS AND DECLARATIONS --------------- ##
         DEBUG = False
+        USEDIRECTBKGYIELDS = True
+        TxyScale=800
         self.mH = theMH
         self.SMDsigCut = 1. 
         self.SMDbkgCut = 1. 
@@ -112,8 +114,8 @@ class datacardClass_HCTau_1D:
         self.channel = theInputs['decayChannel']
         self.bkgMorph = theInputs['useCMS_zz4l_zjet']
         self.outputDir = theOutputDir
-        self.templateDir = theTemplateDir
-        self.dataAppendDir = theDataAppendDir
+        self.templateDir = options.templateDir
+        self.dataAppendDir = options.dataDirAppend
 
         self.ggH_chan = theInputs['ggH']
         self.qqH_chan = theInputs['qqH']
@@ -134,7 +136,9 @@ class datacardClass_HCTau_1D:
         ForXSxBR = False
 
         myCSW = HiggsCSandWidth()
-                
+
+        w = ROOT.RooWorkspace("w","w")
+
         ## ----------------- WIDTH AND RANGES ----------------- ##
         self.widthHVal =  myCSW.HiggsWidth(0,self.mH)
         if(self.widthHVal < 0.12):
@@ -172,16 +176,16 @@ class datacardClass_HCTau_1D:
         elif (self.channel == self.ID_4e): self.appendName = '4e'
         elif (self.channel == self.ID_2e2mu): self.appendName = '2e2mu'
         else: print "Input Error: Unknown channel! (4mu = 1, 4e = 2, 2e2mu = 3)"
-            
-            
+
         
         ## ------------------------- SYSTEMATICS CLASSES ----------------------------- ##
     
         systematics = systematicsClass( self.mH, False, self.isFSR, theInputs)
+        systematics.appendName = self.appendName
 
         ## -------------------------- SIGNAL SHAPE ----------------------------------- ##
-    
-        nctau = 41
+
+        nctau = options.nctau
         bins = 1000
         if(self.bUseCBnoConvolution): bins = 200
 
@@ -191,25 +195,43 @@ class datacardClass_HCTau_1D:
         CMS_zz4l_mass.setBins(bins)
 
         x_name = "CMS_zz4l_ctau"
-        x_min = 0.
-        x_max = 1000.
+        x_min = options.ctaumin
+        x_max = options.ctaumax
         x = ROOT.RooRealVar(x_name,x_name,x_min,x_min,x_max)
         x.setBins(nctau-1)
+        print "{0} number of bins: {1}".format(x_name,nctau-1)
+        x.Print("v")
 
 # Variable to morph Txy nominal, up and down systematics
-        alphaMorph_Txy_Name =  "CMS_zz4l_TxyMorph_{0:.0f}".format(self.channel)
-        alphaMorph_Txy = ROOT.RooRealVar(alphaMorph_Txy_Name,alphaMorph_Txy_Name,0,-10,10)
-        alphaMorph_Txy.setConstant(False)
-        morphVarList_Txy = ROOT.RooArgList()
-        morphVarList_Txy.add(alphaMorph_Txy)
+        alphaMorph_Txy_signal = w.factory("CMS_zz4l_TxyMorph_signal_{0}[-3,3]".format(self.appendName))
+        alphaMorph_Txy_qqzz = w.factory("CMS_zz4l_TxyMorph_qqzz_{0}[-3,3]".format(self.appendName))
+        alphaMorph_Txy_ggzz = w.factory("CMS_zz4l_TxyMorph_ggzz_{0}[-3,3]".format(self.appendName))
+        alphaMorph_Txy_zjets = w.factory("CMS_zz4l_TxyMorph_zjets_{0}[-3,3]".format(self.appendName))
+        
+        alphaMorph_Txy_signal.setConstant(False)
+        alphaMorph_Txy_qqzz.setConstant(False)
+        alphaMorph_Txy_ggzz.setConstant(False)
+        alphaMorph_Txy_zjets.setConstant(False)
+
+        morphVarList_Txy_signal = ROOT.RooArgList()
+        morphVarList_Txy_signal.add(alphaMorph_Txy_signal)
+
+        morphVarList_Txy_qqzz = ROOT.RooArgList()
+        morphVarList_Txy_qqzz.add(alphaMorph_Txy_qqzz)
+
+        morphVarList_Txy_ggzz = ROOT.RooArgList()
+        morphVarList_Txy_ggzz.add(alphaMorph_Txy_ggzz)
+
+        morphVarList_Txy_zjets = ROOT.RooArgList()
+        morphVarList_Txy_zjets.add(alphaMorph_Txy_zjets)
 
 
         D1Name = "CMS_zz4l_KD"
         D2Name = "CMS_zz4l_smd"
         D1 = ROOT.RooRealVar(D1Name,D1Name,-1,1) # KD
-        D1.setBins(80)
+        D1.setBins(80) # Just to set the defaults
         D2 = ROOT.RooRealVar(D2Name,D2Name,0,1) #SuperMELA
-        D2.setBins(40)
+        D2.setBins(40) # Just to set the defaults
 
 
         self.LUMI = ROOT.RooRealVar("LUMI_{0:.0f}".format(self.sqrts),"LUMI_{0:.0f}".format(self.sqrts),self.lumi)
@@ -219,7 +241,7 @@ class datacardClass_HCTau_1D:
         self.MH.setConstant(True)
 
 
-	# n2, alpha2 are right side parameters of DoubleCB
+    # n2, alpha2 are right side parameters of DoubleCB
 	# n, alpha are left side parameters of DoubleCB
 
         n_CB_d = 0.0
@@ -456,12 +478,24 @@ class datacardClass_HCTau_1D:
         print '2D signal shapes'
         mytemplateDir = "{1}/{0:.0f}TeV".format(self.sqrts,self.templateDir)
 
+        signalRawHistList=[]
+        signalRawHistUpList=[]
+        signalRawHistDownList=[]
+        signalDataHistList=[]
+        signalDataHistUpList=[]
+        signalDataHistDownList=[]
+        signalHistFuncList=[]
+        signalHistFuncUpList=[]
+        signalHistFuncDownList=[]
         signalHistFuncs_Nominal = ROOT.RooArgList()
         signalHistFuncs_TxyUp = ROOT.RooArgList()
         signalHistFuncs_TxyDown = ROOT.RooArgList()
 
+
         for tt in range(0,nctau) :
           val_ctau = (x_max-x_min) / (nctau-1) * tt + x_min
+          print "Obtaining ctau {0:.0f}".format(val_ctau)
+
           signalTemplates = "{0}_templates_TxyUpDown_CTau{1:.0f}_Modified.root".format(self.appendName,val_ctau)
           templateSigName = "{0}/{1}".format(mytemplateDir,signalTemplates)
           sigTempFile = ROOT.TFile(templateSigName)
@@ -472,49 +506,55 @@ class datacardClass_HCTau_1D:
           Sig_T_TxyDown = sigTempFile.Get("T_2D_TxyDown")
           Sig_T_TxyDown.SetName("T_ZZ_{0:.0f}_{1}_KD_{2:.0f}_TxyDown".format(self.sqrts,self.appendName,val_ctau))
 
-          if t==0:
+          signalRawHistList.append(Sig_T)
+          signalRawHistUpList.append(Sig_T_TxyUp)
+          signalRawHistDownList.append(Sig_T_TxyDown)
+
+          if tt==0:
             dBinsX = Sig_T.GetXaxis().GetNbins()
             dLowX = Sig_T.GetXaxis().GetXmin()
             dHighX = Sig_T.GetXaxis().GetXmax()
             D1.setRange(dLowX,dHighX)
             D1.setBins(dBinsX)
-            T_integralName = "normt1_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
+            T_integralName = "normCTau0_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
             T_integral = ROOT.RooConstVar (T_integralName,T_integralName,Sig_T.Integral())
             print "T ",T_integral.getVal()
 
-#            r_fai_pures_norm_Name = "sig_PuresNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-#            r_fai_realints_norm_Name = "sig_RealIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-#            r_fai_imagints_norm_Name = "sig_ImagIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-#            r_fai_pures_norm = ROOT.RooFormulaVar(r_fai_pures_norm_Name,r_fai_pures_norm_Name,"( (1-abs(@0)-abs(@1))*@2+abs(@0)*@3+abs(@1)*@4 )/@2",RooArgList(x,y,T1_integral,T2_integral,T3_integral))
-#            r_fai_realints_norm = ROOT.RooFormulaVar(r_fai_realints_norm_Name,r_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*cos(@2)*@4 + sign(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*cos(@3)*@5 + sign(@0*@1)*sqrt(abs(@1)*abs(@0))*cos(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T4_integral,T5_integral,T6_integral,T1_integral))
-#            r_fai_imagints_norm = ROOT.RooFormulaVar(r_fai_imagints_norm_Name,r_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)-abs(@1)))*sin(@2)*@4 + sign(@1)*sqrt (abs(@1)*(1-abs(@0)-abs(@1)))*sin(@3)*@5 + sign(@0*@1)*sqrt(abs(@1)*abs(@0))*sin(@3-@2)*@6 )/@7",RooArgList(x,y,phix,phiy,T7_integral,T8_integral,T9_integral,T1_integral))
-#            r_fai_norm = ROOT.RooFormulaVar("ggH_norm","ggH_norm","(abs(@3)+abs(@4))>1 ? 0. : TMath::Max((@0+@1+@2)*(1-abs(@5)),0)",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,x,y,alpha_zz4l))
+          Sig_T_hist = ROOT.RooDataHist ("T_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistList[tt])
+          Sig_T_TxyUp_hist = ROOT.RooDataHist ("T_TxyUp_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistUpList[tt])
+          Sig_T_TxyDown_hist = ROOT.RooDataHist ("T_TxyDown_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistDownList[tt])
 
-          Sig_T_hist = ROOT.RooDataHist ("T_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1,D2),Sig_T)
-          Sig_T_TxyUp_hist = ROOT.RooDataHist ("T_TxyUp_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1,D2),Sig_T_TxyUp)
-          Sig_T_TxyDown_hist = ROOT.RooDataHist ("T_TxyDown_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1,D2),Sig_T_TxyDown)
+          signalDataHistList.append(Sig_T_hist)
+          signalDataHistUpList.append(Sig_T_TxyUp_hist)
+          signalDataHistDownList.append(Sig_T_TxyDown_hist)
 
-          Sig_T_histfunc = ROOT.RooHistFunc ("T_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1,D2),Sig_T_hist)
-          Sig_T_TxyUp_histfunc = ROOT.RooHistFunc ("T_TxyUp_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1,D2),Sig_T_TxyUp_hist)
-          Sig_T_TxyDown_histfunc = ROOT.RooHistFunc ("T_TxyDown_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1,D2),Sig_T_TxyDown_hist)
+          Sig_T_histfunc = ROOT.RooHistFunc ("T_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistList[tt])
+          Sig_T_TxyUp_histfunc = ROOT.RooHistFunc ("T_TxyUp_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistUpList[tt])
+          Sig_T_TxyDown_histfunc = ROOT.RooHistFunc ("T_TxyDown_histfunc_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistDownList[tt])
 
-          signalHistFuncs_Nominal.add(Sig_T_histfunc)
-          signalHistFuncs_TxyUp.add(Sig_T_TxyUp_histfunc)
-          signalHistFuncs_TxyDown.add(Sig_T_TxyDown_histfunc)
+          signalHistFuncList.append(Sig_T_histfunc)
+          signalHistFuncUpList.append(Sig_T_TxyUp_histfunc)
+          signalHistFuncDownList.append(Sig_T_TxyDown_histfunc)
 
-        ggHpdfName_TxyNominal = "ggH_RooCTauPdf_1D_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggHpdf_TxyNominal = ROOT.HZZ4L_RooCTauPdf_1D(ggHpdfName_TxyNominal,ggHpdfName_TxyNominal,D1,x,signalHistFuncs_Nominal,x_min,x_max)
-        ggHpdfName_TxyUp = "ggH_RooCTauPdf_1D_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggHpdf_TxyUp = ROOT.HZZ4L_RooCTauPdf_1D(ggHpdfName_TxyUp,ggHpdfName_TxyUp,D1,x,signalHistFuncs_TxyUp,x_min,x_max)
-        ggHpdfName_TxyDown = "ggH_RooCTauPdf_1D_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggHpdf_TxyDown = ROOT.HZZ4L_RooCTauPdf_1D(ggHpdfName_TxyDown,ggHpdfName_TxyDown,D1,x,signalHistFuncs_TxyDown,x_min,x_max)
+          signalHistFuncs_Nominal.add(signalHistFuncList[tt])
+          signalHistFuncs_TxyUp.add(signalHistFuncUpList[tt])
+          signalHistFuncs_TxyDown.add(signalHistFuncDownList[tt])
 
-        funcList_Txy_ggH = ROOT.RooArgList()
-        funcList_Txy_ggH.add(ggHpdf_TxyNominal)
-        funcList_Txy_ggH.add(ggHpdf_TxyUp)
-        funcList_Txy_ggH.add(ggHpdf_TxyDown)
-        ggHpdf_Txy_Name = "ggH_Txy_TemplateMorphPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggH_Txy_pdf = ROOT.FastVerticalInterpHistPdf(ggHpdf_Txy_Name, ggHpdf_Txy_Name, D1,False, funcList_Txy_ggH, morphVarList_Txy,1.0,1)
+          print "Nominal integral {0:.5f}".format(signalHistFuncs_Nominal.at(tt).analyticalIntegral(1000))
+          print "Txy Up integral {0:.5f}".format(signalHistFuncs_TxyUp.at(tt).analyticalIntegral(1000))
+          print "Txy Down integral {0:.5f}".format(signalHistFuncs_TxyDown.at(tt).analyticalIntegral(1000))
+
+        print "Accumulated Txy-nominal nCTau hist funcs: ",signalHistFuncs_Nominal.getSize()
+        print "Accumulated Txy-up nCTau hist funcs: ",signalHistFuncs_TxyUp.getSize()
+        print "Accumulated Txy-down nCTau hist funcs: ",signalHistFuncs_TxyDown.getSize()
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyUp)
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyDown)
+        print "Accumulated Txy-nominal nCTau hist funcs after adding: ",signalHistFuncs_Nominal.getSize()
+
+
+        ggHpdfName_Txy = "ggH_RooCTauPdf_1D_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
+        ggH_Txy_pdf = ROOT.HZZ4L_RooCTauPdf_1D_Expanded(ggHpdfName_Txy,ggHpdfName_Txy,D1,x,signalHistFuncs_Nominal, morphVarList_Txy_signal,x_min,x_max)
+
 
         signalTemplates_ScaleRes = "{0}_templates_SignalScaleResSyst.root".format(self.appendName)
         templateSigScaleResName = "{0}/{1}".format(mytemplateDir,signalTemplates_ScaleRes)
@@ -526,13 +566,13 @@ class datacardClass_HCTau_1D:
         Sig_T_ScaleResDown = sigTempFile_ScaleRes.Get("T_2D_ScaleResDown")
         Sig_T_ScaleResDown.SetName("T_ZZ_{0:.0f}_{1}_smd_ScaleResDown".format(self.sqrts,self.appendName))
 
-        dBinsY = Sig_T_ScaleResNominal.GetYaxis().GetNbins()
-        dLowY = Sig_T_ScaleResNominal.GetYaxis().GetXmin()
-        dHighY = Sig_T_ScaleResNominal.GetYaxis().GetXmax()
+        dBinsY = Sig_T_ScaleResNominal.GetXaxis().GetNbins()
+        dLowY = Sig_T_ScaleResNominal.GetXaxis().GetXmin()
+        dHighY = Sig_T_ScaleResNominal.GetXaxis().GetXmax()
         D2.setRange(dLowY,dHighY)
         D2.setBins(dBinsY)
 
-        Sig_T_ScaleResNominal_hist = ROOT.RooDataHist("T_ScaleResNominal_hist_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts,"",ROOT.RooArgList(D2),Sig_T_ScaleResNominal)
+        Sig_T_ScaleResNominal_hist = ROOT.RooDataHist("T_ScaleResNominal_hist_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts),"",ROOT.RooArgList(D2),Sig_T_ScaleResNominal)
         Sig_T_ScaleResUp_hist = ROOT.RooDataHist("T_ScaleResUp_hist_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts),"",ROOT.RooArgList(D2),Sig_T_ScaleResUp)
         Sig_T_ScaleResDown_hist = ROOT.RooDataHist("T_ScaleResDown_hist_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts),"",ROOT.RooArgList(D2),Sig_T_ScaleResDown) 
 
@@ -544,9 +584,52 @@ class datacardClass_HCTau_1D:
         ggHpdfName_systUp = "ggH_RooProdPdf_ScaleResUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggHpdfName_systDown = "ggH_RooProdPdf_ScaleResDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
 
+        print "Constructing nominal prodpdf"
         ggHpdf = ROOT.RooProdPdf(ggHpdfName,ggHpdfName,ggH_Txy_pdf,Sig_T_ScaleResNominal_pdf)
+        print "Constructing systup prodpdf"
         ggHpdf_systUp = ROOT.RooProdPdf(ggHpdfName_systUp,ggHpdfName_systUp,ggH_Txy_pdf,Sig_T_ScaleResUp_pdf)
+        print "Constructing systdown prodpdf"
         ggHpdf_systDown = ROOT.RooProdPdf(ggHpdfName_systDown,ggHpdfName_systDown,ggH_Txy_pdf,Sig_T_ScaleResDown_pdf)
+
+
+        ## ----------------------- PLOTS FOR SANITY CHECKS -------------------------- ##
+
+        fplot = ROOT.TFile("{0}/figs/xcheck_{1:.0f}_{2}.root".format(self.outputDir,self.sqrts,self.appendName),"recreate")
+        print "Starting to plot signal for sanity checks"
+        print "Plot 1"
+        canvasname = "c_{2}_{0:.0f}TeV_{1}".format(self.sqrts,self.appendName,x.GetName())
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        ctest.cd()
+        projD1x = ggH_Txy_pdf.createHistogram("projD1x",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        projD1x.SetOption("colz")
+        projD1x.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        projD1x.SetXTitle("<c#tau> (#mum)")
+        projD1x.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        projD1x.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 2"
+        canvasname = "c_ultimate{2}_smd_{0:.0f}TeV_{1}".format(self.sqrts,self.appendName,x.GetName())
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        ctest.cd()
+        onlyxD2pdf = ggHpdf.createProjection(ROOT.RooArgSet(D1))
+        projxD2 = onlyxD2pdf.createHistogram("projxD2",x,ROOT.RooFit.YVar(D2),ROOT.RooFit.Scaling(False),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        projxD2.SetOption("colz")
+        projxD2.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 3"
+        canvasname = "c_ultimateD1D2xResult_{0:.0f}TeV_{1}".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        ctest.cd()
+        projD1D2x = ggHpdf.createHistogram("projD1D2x",D1,ROOT.RooFit.YVar(D2),ROOT.RooFit.ZVar(x),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        projD1D2 = projD1D2x.Project3D("xz")
+        projD1D2.SetOption("colz")
+        projD1D2.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        fplot.Close()
+
 
 
 
@@ -844,7 +927,7 @@ class datacardClass_HCTau_1D:
             funcList_zjets.add(ZjetsTemplatePdf)
             alphaMorphBkg.setConstant(True)
         MorphName = "ZX_TemplateMorphPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ZjetsTemplateMorphPdf = ROOT.FastVerticalInterpHistPdf(MorphName,MorphName,D2,False,funcList_zjets,morphVarListBkg,1.0,1)
+        ZjetsTemplateMorphPdf = ROOT.FastVerticalInterpHistPdf(MorphName,MorphName,D2,funcList_zjets,morphVarListBkg,1.0,1)
 
 
 #        bkgTemplates_TxyNominal = "{0}_templates_bkg_Nominal.root".format(self.appendName)
@@ -872,16 +955,19 @@ class datacardClass_HCTau_1D:
 #        bkgTempFile_TxyUp = ROOT.TFile(templateBkgName_TxyUp)
         bkgTempFile_TxyUp = bkgTempFile_TxyNominal
         qqZZTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_qqZZ_TxyUp")
+#        qqZZTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_qqZZ_TxyNominal")
         TemplateName = "qqZZTempDataHist_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         qqZZTempDataHist_TxyUp = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),qqZZTemplate_TxyUp)
         PdfName = "qqZZ_TemplatePdf_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         qqZZTemplatePdf_TxyUp = ROOT.RooHistPdf(PdfName,PdfName,ROOT.RooArgSet(D1),qqZZTempDataHist_TxyUp)
         ggZZTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_ggZZ_TxyUp")
+#        ggZZTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_ggZZ_TxyNominal")
         TemplateName = "ggZZTempDataHist_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggZZTempDataHist_TxyUp = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),ggZZTemplate_TxyUp)
         PdfName = "ggZZ_TemplatePdf_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggZZTemplatePdf_TxyUp = ROOT.RooHistPdf(PdfName,PdfName,ROOT.RooArgSet(D1),ggZZTempDataHist_TxyUp)
         ZjetsTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_ZX_TxyUp")
+#        ZjetsTemplate_TxyUp = bkgTempFile_TxyUp.Get("template_ZX_TxyNominal")
         TemplateName = "ZjetsTempDataHist_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ZjetsTempDataHist_TxyUp = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),ZjetsTemplate_TxyUp)
         PdfName = "Zjets_TemplatePdf_TxyUp_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
@@ -892,16 +978,19 @@ class datacardClass_HCTau_1D:
 #        bkgTempFile_TxyDown = ROOT.TFile(templateBkgName_TxyDown)
         bkgTempFile_TxyDown = bkgTempFile_TxyNominal
         qqZZTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_qqZZ_TxyDown")
+#        qqZZTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_qqZZ_TxyNominal")
         TemplateName = "qqZZTempDataHist_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         qqZZTempDataHist_TxyDown = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),qqZZTemplate_TxyDown)
         PdfName = "qqZZ_TemplatePdf_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         qqZZTemplatePdf_TxyDown = ROOT.RooHistPdf(PdfName,PdfName,ROOT.RooArgSet(D1),qqZZTempDataHist_TxyDown)
         ggZZTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_ggZZ_TxyDown")
+#        ggZZTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_ggZZ_TxyNominal")
         TemplateName = "ggZZTempDataHist_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggZZTempDataHist_TxyDown = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),ggZZTemplate_TxyDown)
         PdfName = "ggZZ_TemplatePdf_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggZZTemplatePdf_TxyDown = ROOT.RooHistPdf(PdfName,PdfName,ROOT.RooArgSet(D1),ggZZTempDataHist_TxyDown)
         ZjetsTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_ZX_TxyDown")
+#        ZjetsTemplate_TxyDown = bkgTempFile_TxyDown.Get("template_ZX_TxyNominal")
         TemplateName = "ZjetsTempDataHist_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ZjetsTempDataHist_TxyDown = ROOT.RooDataHist(TemplateName,TemplateName,ROOT.RooArgList(D1),ZjetsTemplate_TxyDown)
         PdfName = "Zjets_TemplatePdf_TxyDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
@@ -922,17 +1011,17 @@ class datacardClass_HCTau_1D:
         funcList_Txy_Zjets.add(ZjetsTemplatePdf_TxyDown)
 
         qqZZpdf_Txy_Name = "qqZZ_Txy_TemplateMorphPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        qqZZ_Txy_pdf = ROOT.FastVerticalInterpHistPdf(qqZZpdf_Txy_Name, qqZZpdf_Txy_Name, D1,False, funcList_Txy_qqZZ, morphVarList_Txy,1.0,1)
+        qqZZ_Txy_pdf = ROOT.FastVerticalInterpHistPdf(qqZZpdf_Txy_Name, qqZZpdf_Txy_Name, D1, funcList_Txy_qqZZ, morphVarList_Txy_qqzz,1.0,1)
         qqZZpdfName = "qqZZ_RooProdPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         qqZZpdf = ROOT.RooProdPdf(qqZZpdfName,qqZZpdfName,qqZZ_Txy_pdf,qqZZTemplatePdf)
 
         ggZZpdf_Txy_Name = "ggZZ_Txy_TemplateMorphPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggZZ_Txy_pdf = ROOT.FastVerticalInterpHistPdf(ggZZpdf_Txy_Name, ggZZpdf_Txy_Name, D1,False, funcList_Txy_ggZZ, morphVarList_Txy,1.0,1)
+        ggZZ_Txy_pdf = ROOT.FastVerticalInterpHistPdf(ggZZpdf_Txy_Name, ggZZpdf_Txy_Name, D1, funcList_Txy_ggZZ, morphVarList_Txy_ggzz,1.0,1)
         ggZZpdfName = "ggZZ_RooProdPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggZZpdf = ROOT.RooProdPdf(ggZZpdfName,ggZZpdfName,ggZZ_Txy_pdf,ggZZTemplatePdf)
 
         Zjetspdf_Txy_Name = "Zjets_Txy_TemplateMorphPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        Zjets_Txy_pdf = ROOT.FastVerticalInterpHistPdf(Zjetspdf_Txy_Name, Zjetspdf_Txy_Name, D1,False, funcList_Txy_Zjets, morphVarList_Txy,1.0,1)
+        Zjets_Txy_pdf = ROOT.FastVerticalInterpHistPdf(Zjetspdf_Txy_Name, Zjetspdf_Txy_Name, D1, funcList_Txy_Zjets, morphVarList_Txy_zjets,1.0,1)
         ZjetspdfName = "Zjets_RooProdPdf_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         Zjetspdf = ROOT.RooProdPdf(ZjetspdfName,ZjetspdfName,Zjets_Txy_pdf,ZjetsTemplateMorphPdf)
 
@@ -977,6 +1066,7 @@ class datacardClass_HCTau_1D:
 
         CMS_zz4l_mass.setRange("fullrangesignal",fr_low_M,fr_high_M)
         CMS_zz4l_mass.setRange("fullrange",100,1400)
+        CMS_zz4l_mass.setRange("fullwiderrange",100,1600)
         
 
         sigEffName = "hzz4lggHeff_{0:.0f}_{1:.0f}_a1".format(self.channel,self.sqrts)
@@ -1363,31 +1453,31 @@ class datacardClass_HCTau_1D:
         sigRate_ggH_input = theInputs['ggH_rate']
         if sigRate_ggH_input < 0:
             sigRate_ggH_input=sigRate_ggH_Shape
-	else:
-	    print "ggH Rate: ",sigRate_ggH_input
-	    sigRate_ggH_Shape=sigRate_ggH_input
+        else:
+            print "ggH Rate: ",sigRate_ggH_input
+            sigRate_ggH_Shape=sigRate_ggH_input
 
         eff_qqH_input = theInputs['qqH_eff']
         if eff_qqH_input >= 0:
-	    print "qqH Custom Efficiency: ",eff_qqH_input
-	    sigRate_VBF_Shape=eff_qqH_input*CS_VBF*BR*1000.*self.lumi
-	    print "sigRate_VBF_Shape after custom eficiency: ",sigRate_VBF_Shape
+            print "qqH Custom Efficiency: ",eff_qqH_input
+            sigRate_VBF_Shape=eff_qqH_input*CS_VBF*BR*1000.*self.lumi
+            print "sigRate_VBF_Shape after custom eficiency: ",sigRate_VBF_Shape
 
         sigRate_Total_Shape = sigRate_ggH_Shape+sigRate_VBF_Shape+sigRate_WH_Shape+sigRate_ZH_Shape+sigRate_ttH_Shape
         sigRate_ggH_Shape=sigRate_Total_Shape
-	print "Total yield: ",sigRate_ggH_Shape
+        print "Total yield: ",sigRate_ggH_Shape
 
              
         ## ----------------------- BACKGROUND RATES ----------------------- ##
 
         ## rates per lumi for scaling
         bkgRate_qqzz = theInputs['qqZZ_rate']/theInputs['qqZZ_lumi']
-        bkgRate_ggzz = theInputs['ggZZ_rate']/theInputs['qqZZ_lumi']
+        bkgRate_ggzz = theInputs['ggZZ_rate']/theInputs['ggZZ_lumi']
         bkgRate_zjets = theInputs['zjets_rate']/theInputs['zjets_lumi']
         
         ## Get Normalizations
-        normalizationBackground_qqzz = bkg_qqzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("fullrange") ).getVal()
-        normalizationBackground_ggzz = bkg_ggzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("fullrange") ).getVal()
+        normalizationBackground_qqzz = bkg_qqzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("fullwiderrange") ).getVal()
+        normalizationBackground_ggzz = bkg_ggzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("fullwiderrange") ).getVal()
         normalizationBackground_zjets = bkg_zjets.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("fullrange") ).getVal()
 
         print "channel: "+self.appendName
@@ -1419,7 +1509,13 @@ class datacardClass_HCTau_1D:
         bkgRate_qqzz_Shape *= rfvSMD_Ratio_qqZZ.getVal()
         bkgRate_ggzz_Shape *= rfvSMD_Ratio_ggZZ.getVal()
         bkgRate_zjets_Shape *= rfvSMD_Ratio_Zjets.getVal()
-        
+
+        if USEDIRECTBKGYIELDS:
+            bkgRate_qqzz_Shape = theInputs['qqZZ_rate']/theInputs['qqZZ_lumi']*self.lumi
+            bkgRate_ggzz_Shape = theInputs['ggZZ_rate']/theInputs['ggZZ_lumi']*self.lumi
+            bkgRate_zjets_Shape = theInputs['zjets_rate']/theInputs['zjets_lumi']*self.lumi
+            sigRate_ggH_Shape = theInputs['ggH_rate']
+
         if(DEBUG):
             print "Shape signal rate: ",sigRate_ggH_Shape,", background rate: ",bkgRate_qqzz_Shape,", ",bkgRate_zjets_Shape," in ",low_M," - ",high_M
             CMS_zz4l_mass.setRange("lowmassregion",100.,160.)
@@ -1452,7 +1548,7 @@ class datacardClass_HCTau_1D:
         datasetName = "data_obs_{0}".format(self.appendName)
         
 
-        data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ROOT.RooArgSet(CMS_zz4l_mass,D1,D2,D3))
+        data_obs = ROOT.RooDataSet(datasetName,datasetName,data_obs_tree,ROOT.RooArgSet(CMS_zz4l_mass,D1,D2))
 
             
         ## --------------------------- WORKSPACE -------------------------- ##
@@ -1475,21 +1571,18 @@ class datacardClass_HCTau_1D:
         name_ShapeWS2 = "hzz4l_{0}S_{1:.0f}TeV.input.root".format(self.appendName,self.sqrts)
 
         if(DEBUG): print name_Shape,"  ",name_ShapeWS2
-        
-        w = ROOT.RooWorkspace("w","w")
-        
+
         w.importClassCode(RooqqZZPdf_v2.Class(),True)
         w.importClassCode(RooggZZPdf_v2.Class(),True)
-        w.importClassCode(HZZ4L_RooCTauPdf.Class(),True)
+        w.importClassCode(HZZ4L_RooCTauPdf_1D_Expanded.Class(),True)
         w.importClassCode(RooFormulaVar.Class(),True)
         if self.isHighMass :
             w.importClassCode(RooRelBWHighMass.Class(),True)
             
-                
+        getattr(w,'import')(x, ROOT.RooFit.RecycleConflictNodes())
                 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
 #        getattr(w,'import')(r_fai_norm) ### Should this be renamed?
-
 
         ggHpdf.SetNameTitle("ggH","ggH")
         getattr(w,'import')(ggHpdf, ROOT.RooFit.RecycleConflictNodes())

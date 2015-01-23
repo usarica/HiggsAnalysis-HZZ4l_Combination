@@ -25,6 +25,9 @@ def parseOptions():
     parser.add_option('-t', '--templateDir', type='string', dest='templateDir', default="templates2D" ,help='directory with 2D template histos')
 #    parser.add_option('-m', '--model', type='string', dest='model', default="1D" ,help='model: 1D, phase, 2D ')
     parser.add_option('-r', '--datadir', type='string', dest='dataDirAppend', default="" ,help='dataDirAppend: Reference CMSdata folder per measurement')
+    parser.add_option('--nct', '--nctau', type='int', dest='nctau', default="51" ,help='Number of templates for ctau interpolation, default is 51')
+    parser.add_option('--ctmin', '--ctaumin', type='float', dest='ctaumin', default="0" ,help='Minimum ctau (type float), default is 0')
+    parser.add_option('--ctmax', '--ctaumax', type='float', dest='ctaumax', default="1000" ,help='Maximum ctau (type float), default is 1000')
 
     
     # store options and arguments as global variables
@@ -104,9 +107,9 @@ def creationLoop(directory):
             print mh
 
             makeDirectory(directory+'/HCG/'+mhs)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt.templateDir,opt.dataDirAppend)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt.templateDir,opt.dataDirAppend)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt.templateDir,opt.dataDirAppend)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt)
                 
             c += 1
             
