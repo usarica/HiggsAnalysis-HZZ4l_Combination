@@ -738,7 +738,13 @@ class systematicsClass:
         meanCB_m_errPerCent = theInputs['CMS_zz4l_mean_m_sig']
         sigmaCB_m_errPerCent = theInputs['CMS_zz4l_sigma_m_sig']
         Gamma_BW_errPerCent = theInputs['CMS_zz4l_gamma_sig']
-        
+
+        theFile.write("CMS_zz4l_TxyMorph_signal_{0} param 0.0 1 [-3,3]\n".format(self.appendName))
+        theFile.write("CMS_zz4l_TxyMorph_qqzz_{0} param 0.0 1 [-3,3]\n".format(self.appendName))
+        theFile.write("CMS_zz4l_TxyMorph_ggzz_{0} param 0.0 1 [-3,3]\n".format(self.appendName))
+        theFile.write("CMS_zz4l_TxyMorph_zjets_{0} param 0.0 1 [-3,3]\n".format(self.appendName))
+
+
         if( self.channel == self.ID_4mu):
 
             if theInputs['useCMS_zz4l_mean']:
