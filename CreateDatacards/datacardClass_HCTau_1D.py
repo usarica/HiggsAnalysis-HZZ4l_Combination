@@ -226,6 +226,13 @@ class datacardClass_HCTau_1D:
         morphVarList_Txy_zjets.add(alphaMorph_Txy_zjets)
 
 
+        alphaMorph_Prod_signal = ROOT.RooRealVar("CMS_zz4l_prod","CMS_zz4l_prod",0,-1,1)
+        alphaMorph_Prod_signal.setConstant(False)
+        morphVarList_Prod_signal = ROOT.RooArgList()
+        morphVarList_Prod_signal.add(alphaMorph_Prod_signal)
+        morphVarList_Txy_signal.add(alphaMorph_Prod_signal)
+
+
         D1Name = "CMS_zz4l_KD"
         D2Name = "CMS_zz4l_smd"
         D1 = ROOT.RooRealVar(D1Name,D1Name,-1,1) # KD
@@ -491,14 +498,46 @@ class datacardClass_HCTau_1D:
         signalHistFuncs_TxyUp = ROOT.RooArgList()
         signalHistFuncs_TxyDown = ROOT.RooArgList()
 
+        signalRawHistList_ProdUp=[]
+        signalRawHistUpList_ProdUp=[]
+        signalRawHistDownList_ProdUp=[]
+        signalDataHistList_ProdUp=[]
+        signalDataHistUpList_ProdUp=[]
+        signalDataHistDownList_ProdUp=[]
+        signalHistFuncList_ProdUp=[]
+        signalHistFuncUpList_ProdUp=[]
+        signalHistFuncDownList_ProdUp=[]
+        signalHistFuncs_Nominal_ProdUp = ROOT.RooArgList()
+        signalHistFuncs_TxyUp_ProdUp = ROOT.RooArgList()
+        signalHistFuncs_TxyDown_ProdUp = ROOT.RooArgList()
+
+        signalRawHistList_ProdDn=[]
+        signalRawHistUpList_ProdDn=[]
+        signalRawHistDownList_ProdDn=[]
+        signalDataHistList_ProdDn=[]
+        signalDataHistUpList_ProdDn=[]
+        signalDataHistDownList_ProdDn=[]
+        signalHistFuncList_ProdDn=[]
+        signalHistFuncUpList_ProdDn=[]
+        signalHistFuncDownList_ProdDn=[]
+        signalHistFuncs_Nominal_ProdDn = ROOT.RooArgList()
+        signalHistFuncs_TxyUp_ProdDn = ROOT.RooArgList()
+        signalHistFuncs_TxyDown_ProdDn = ROOT.RooArgList()
+
+        integral_Sig_ProdNominal = 0.0
+        integral_Sig_ProdUp = 0.0
+        integral_Sig_ProdDn = 0.0
+
 
         for tt in range(0,nctau) :
           val_ctau = (x_max-x_min) / (nctau-1) * tt + x_min
           print "Obtaining ctau {0:.0f}".format(val_ctau)
 
-          signalTemplates = "{0}_templates_TxyUpDown_CTau{1:.0f}_Modified.root".format(self.appendName,val_ctau)
+#          signalTemplates = "{0}_templates_TxyUpDown_CTau{1:.0f}_Modified.root".format(self.appendName,val_ctau)
+          signalTemplates = "{0}_templates_{1:.0f}_Modified.root".format(self.appendName,val_ctau)
           templateSigName = "{0}/{1}".format(mytemplateDir,signalTemplates)
           sigTempFile = ROOT.TFile(templateSigName)
+
           Sig_T = sigTempFile.Get("T_2D_TxyNominal")
           Sig_T.SetName("T_ZZ_{0:.0f}_{1}_KD_{2:.0f}".format(self.sqrts,self.appendName,val_ctau))
           Sig_T_TxyUp = sigTempFile.Get("T_2D_TxyUp")
@@ -518,7 +557,12 @@ class datacardClass_HCTau_1D:
             D1.setBins(dBinsX)
             T_integralName = "normCTau0_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
             T_integral = ROOT.RooConstVar (T_integralName,T_integralName,Sig_T.Integral())
+            integral_Sig_ProdNominal = Sig_T.Integral()
             print "T ",T_integral.getVal()
+
+          Sig_T.Scale(1./Sig_T.Integral())
+          Sig_T_TxyUp.Scale(1./Sig_T_TxyUp.Integral())
+          Sig_T_TxyDown.Scale(1./Sig_T_TxyDown.Integral())
 
           Sig_T_hist = ROOT.RooDataHist ("T_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistList[tt])
           Sig_T_TxyUp_hist = ROOT.RooDataHist ("T_TxyUp_hist_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistUpList[tt])
@@ -544,16 +588,136 @@ class datacardClass_HCTau_1D:
           print "Txy Up integral {0:.5f}".format(signalHistFuncs_TxyUp.at(tt).analyticalIntegral(1000))
           print "Txy Down integral {0:.5f}".format(signalHistFuncs_TxyDown.at(tt).analyticalIntegral(1000))
 
+          Sig_T_ProdUp = sigTempFile.Get("T_2D_TxyNominal_ttH")
+          Sig_T_ProdUp.SetName("T_ZZ_ttH_{0:.0f}_{1}_KD_{2:.0f}".format(self.sqrts,self.appendName,val_ctau))
+          Sig_T_TxyUp_ProdUp = sigTempFile.Get("T_2D_TxyUp_ttH")
+          Sig_T_TxyUp_ProdUp.SetName("T_ZZ_ttH_{0:.0f}_{1}_KD_{2:.0f}_TxyUp".format(self.sqrts,self.appendName,val_ctau))
+          Sig_T_TxyDown_ProdUp = sigTempFile.Get("T_2D_TxyDown_ttH")
+          Sig_T_TxyDown_ProdUp.SetName("T_ZZ_ttH_{0:.0f}_{1}_KD_{2:.0f}_TxyDown".format(self.sqrts,self.appendName,val_ctau))
+
+          if tt==0:
+            integral_Sig_ProdUp = Sig_T_ProdUp.Integral()
+
+          Sig_T_ProdUp.Scale(1./Sig_T_ProdUp.Integral())
+          Sig_T_TxyUp_ProdUp.Scale(1./Sig_T_TxyUp_ProdUp.Integral())
+          Sig_T_TxyDown_ProdUp.Scale(1./Sig_T_TxyDown_ProdUp.Integral())
+
+          signalRawHistList_ProdUp.append(Sig_T_ProdUp)
+          signalRawHistUpList_ProdUp.append(Sig_T_TxyUp_ProdUp)
+          signalRawHistDownList_ProdUp.append(Sig_T_TxyDown_ProdUp)
+
+          Sig_T_ProdUp_hist = ROOT.RooDataHist ("T_hist_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistList_ProdUp[tt])
+          Sig_T_TxyUp_ProdUp_hist = ROOT.RooDataHist ("T_TxyUp_hist_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistUpList_ProdUp[tt])
+          Sig_T_TxyDown_ProdUp_hist = ROOT.RooDataHist ("T_TxyDown_hist_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistDownList_ProdUp[tt])
+
+          signalDataHistList_ProdUp.append(Sig_T_ProdUp_hist)
+          signalDataHistUpList_ProdUp.append(Sig_T_TxyUp_ProdUp_hist)
+          signalDataHistDownList_ProdUp.append(Sig_T_TxyDown_ProdUp_hist)
+
+          Sig_T_ProdUp_histfunc = ROOT.RooHistFunc ("T_histfunc_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistList_ProdUp[tt])
+          Sig_T_TxyUp_ProdUp_histfunc = ROOT.RooHistFunc ("T_TxyUp_histfunc_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistUpList_ProdUp[tt])
+          Sig_T_TxyDown_ProdUp_histfunc = ROOT.RooHistFunc ("T_TxyDown_histfunc_ttH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistDownList_ProdUp[tt])
+
+          signalHistFuncList_ProdUp.append(Sig_T_ProdUp_histfunc)
+          signalHistFuncUpList_ProdUp.append(Sig_T_TxyUp_ProdUp_histfunc)
+          signalHistFuncDownList_ProdUp.append(Sig_T_TxyDown_ProdUp_histfunc)
+
+          signalHistFuncs_Nominal_ProdUp.add(signalHistFuncList_ProdUp[tt])
+          signalHistFuncs_TxyUp_ProdUp.add(signalHistFuncUpList_ProdUp[tt])
+          signalHistFuncs_TxyDown_ProdUp.add(signalHistFuncDownList_ProdUp[tt])
+
+          print "Nominal ttH integral {0:.5f}".format(signalHistFuncs_Nominal_ProdUp.at(tt).analyticalIntegral(1000))
+          print "Txy Up ttH integral {0:.5f}".format(signalHistFuncs_TxyUp_ProdUp.at(tt).analyticalIntegral(1000))
+          print "Txy Down ttH integral {0:.5f}".format(signalHistFuncs_TxyDown_ProdUp.at(tt).analyticalIntegral(1000))
+
+
+          Sig_T_ProdDn = sigTempFile.Get("T_2D_TxyNominal_ggH")
+          Sig_T_ProdDn.SetName("T_ZZ_ggH_{0:.0f}_{1}_KD_{2:.0f}".format(self.sqrts,self.appendName,val_ctau))
+          Sig_T_TxyUp_ProdDn = sigTempFile.Get("T_2D_TxyUp_ggH")
+          Sig_T_TxyUp_ProdDn.SetName("T_ZZ_ggH_{0:.0f}_{1}_KD_{2:.0f}_TxyUp".format(self.sqrts,self.appendName,val_ctau))
+          Sig_T_TxyDown_ProdDn = sigTempFile.Get("T_2D_TxyDown_ggH")
+          Sig_T_TxyDown_ProdDn.SetName("T_ZZ_ggH_{0:.0f}_{1}_KD_{2:.0f}_TxyDown".format(self.sqrts,self.appendName,val_ctau))
+
+          if tt==0:
+            integral_Sig_ProdDn = Sig_T_ProdDn.Integral()
+
+          Sig_T_ProdDn.Scale(1./Sig_T_ProdDn.Integral())
+          Sig_T_TxyUp_ProdDn.Scale(1./Sig_T_TxyUp_ProdDn.Integral())
+          Sig_T_TxyDown_ProdDn.Scale(1./Sig_T_TxyDown_ProdDn.Integral())
+
+
+          signalRawHistList_ProdDn.append(Sig_T_ProdDn)
+          signalRawHistUpList_ProdDn.append(Sig_T_TxyUp_ProdDn)
+          signalRawHistDownList_ProdDn.append(Sig_T_TxyDown_ProdDn)
+
+          Sig_T_ProdDn_hist = ROOT.RooDataHist ("T_hist_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistList_ProdDn[tt])
+          Sig_T_TxyUp_ProdDn_hist = ROOT.RooDataHist ("T_TxyUp_hist_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistUpList_ProdDn[tt])
+          Sig_T_TxyDown_ProdDn_hist = ROOT.RooDataHist ("T_TxyDown_hist_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgList(D1),signalRawHistDownList_ProdDn[tt])
+
+          signalDataHistList_ProdDn.append(Sig_T_ProdDn_hist)
+          signalDataHistUpList_ProdDn.append(Sig_T_TxyUp_ProdDn_hist)
+          signalDataHistDownList_ProdDn.append(Sig_T_TxyDown_ProdDn_hist)
+
+          Sig_T_ProdDn_histfunc = ROOT.RooHistFunc ("T_histfunc_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistList_ProdDn[tt])
+          Sig_T_TxyUp_ProdDn_histfunc = ROOT.RooHistFunc ("T_TxyUp_histfunc_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistUpList_ProdDn[tt])
+          Sig_T_TxyDown_ProdDn_histfunc = ROOT.RooHistFunc ("T_TxyDown_histfunc_ggH_{0:.0f}_{1:.0f}_{2:.0f}".format(self.channel,self.sqrts,val_ctau),"", ROOT.RooArgSet(D1),signalDataHistDownList_ProdDn[tt])
+
+          signalHistFuncList_ProdDn.append(Sig_T_ProdDn_histfunc)
+          signalHistFuncUpList_ProdDn.append(Sig_T_TxyUp_ProdDn_histfunc)
+          signalHistFuncDownList_ProdDn.append(Sig_T_TxyDown_ProdDn_histfunc)
+
+          signalHistFuncs_Nominal_ProdDn.add(signalHistFuncList_ProdDn[tt])
+          signalHistFuncs_TxyUp_ProdDn.add(signalHistFuncUpList_ProdDn[tt])
+          signalHistFuncs_TxyDown_ProdDn.add(signalHistFuncDownList_ProdDn[tt])
+
+          print "Nominal ggH integral {0:.5f}".format(signalHistFuncs_Nominal_ProdDn.at(tt).analyticalIntegral(1000))
+          print "Txy Up ggH integral {0:.5f}".format(signalHistFuncs_TxyUp_ProdDn.at(tt).analyticalIntegral(1000))
+          print "Txy Down ggH integral {0:.5f}".format(signalHistFuncs_TxyDown_ProdDn.at(tt).analyticalIntegral(1000))
+
+
         print "Accumulated Txy-nominal nCTau hist funcs: ",signalHistFuncs_Nominal.getSize()
         print "Accumulated Txy-up nCTau hist funcs: ",signalHistFuncs_TxyUp.getSize()
         print "Accumulated Txy-down nCTau hist funcs: ",signalHistFuncs_TxyDown.getSize()
         signalHistFuncs_Nominal.add(signalHistFuncs_TxyUp)
         signalHistFuncs_Nominal.add(signalHistFuncs_TxyDown)
+
+        signalHistFuncs_Nominal.add(signalHistFuncs_Nominal_ProdUp)
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyUp_ProdUp)
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyDown_ProdUp)
+
+        signalHistFuncs_Nominal.add(signalHistFuncs_Nominal_ProdDn)
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyUp_ProdDn)
+        signalHistFuncs_Nominal.add(signalHistFuncs_TxyDown_ProdDn)
+
         print "Accumulated Txy-nominal nCTau hist funcs after adding: ",signalHistFuncs_Nominal.getSize()
 
-
         ggHpdfName_Txy = "ggH_RooCTauPdf_1D_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        ggH_Txy_pdf = ROOT.HZZ4L_RooCTauPdf_1D_Expanded(ggHpdfName_Txy,ggHpdfName_Txy,D1,x,signalHistFuncs_Nominal, morphVarList_Txy_signal,x_min,x_max)
+        ggH_Txy_pdf = ROOT.HZZ4L_RooCTauPdf_1D_Expanded(ggHpdfName_Txy,ggHpdfName_Txy,D1,x,signalHistFuncs_Nominal, morphVarList_Txy_signal,x_min,x_max, 1.0, 0, 1)
+
+
+        integral_Sig_ProdUp = integral_Sig_ProdUp / integral_Sig_ProdNominal
+        integral_Sig_ProdDn = integral_Sig_ProdDn / integral_Sig_ProdNominal
+        integral_Sig_ProdNominal = 1.
+
+        print "Prod norms:"
+        print integral_Sig_ProdUp
+        print integral_Sig_ProdDn
+
+        prodSigName = "CMS_zz4l_SigRelEff_Nominal_{0}_{1:.0f}".format(self.channel,self.sqrts)
+        CMS_zz4l_SigRelEff_Nominal = ROOT.RooRealVar(prodSigName,prodSigName,integral_Sig_ProdNominal)
+        prodSigName = "CMS_zz4l_SigRelEff_ProdUp_{0}_{1:.0f}".format(self.channel,self.sqrts)
+        CMS_zz4l_SigRelEff_ProdUp = ROOT.RooRealVar(prodSigName,prodSigName,integral_Sig_ProdUp)
+        prodSigName = "CMS_zz4l_SigRelEff_ProdDn_{0}_{1:.0f}".format(self.channel,self.sqrts)
+        CMS_zz4l_SigRelEff_ProdDn = ROOT.RooRealVar(prodSigName,prodSigName,integral_Sig_ProdDn)
+
+        MorphNormList_Sig_Prod = ROOT.RooArgList()
+        MorphNormList_Sig_Prod.add(CMS_zz4l_SigRelEff_Nominal)
+        MorphNormList_Sig_Prod.add(CMS_zz4l_SigRelEff_ProdUp)
+        MorphNormList_Sig_Prod.add(CMS_zz4l_SigRelEff_ProdDn)
+        SigNormName = "ggH_norm"
+        norm_Sig = ROOT.AsymQuad(SigNormName, SigNormName, MorphNormList_Sig_Prod, morphVarList_Prod_signal, 1.0)
+
+
 
 
         signalTemplates_ScaleRes = "{0}_templates_SignalScaleResSyst.root".format(self.appendName)
@@ -628,6 +792,132 @@ class datacardClass_HCTau_1D:
         projD1D2.Draw()
         fplot.WriteTObject(ctest)
         ctest.Close()
+        
+        prodNominalHist = ggH_Txy_pdf.createHistogram("ProdNominalHist",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(1)
+        prodNominalHist_TxyUp = ggH_Txy_pdf.createHistogram("ProdNominalHist_TxyUp",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(-1)
+        prodNominalHist_TxyDn = ggH_Txy_pdf.createHistogram("ProdNominalHist_TxyDn",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(0)
+        
+        alphaMorph_Prod_signal.setVal(1)
+        prodUpHist = ggH_Txy_pdf.createHistogram("ProdUpHist",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(1)
+        prodUpHist_TxyUp = ggH_Txy_pdf.createHistogram("ProdUpHist_TxyUp",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(-1)
+        prodUpHist_TxyDn = ggH_Txy_pdf.createHistogram("ProdUpHist_TxyDn",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(0)
+        
+        alphaMorph_Prod_signal.setVal(-1)        
+        prodDnHist = ggH_Txy_pdf.createHistogram("ProdDnHist",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(1)
+        prodDnHist_TxyUp = ggH_Txy_pdf.createHistogram("ProdDnHist_TxyUp",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(-1)
+        prodDnHist_TxyDn = ggH_Txy_pdf.createHistogram("ProdDnHist_TxyDn",x,ROOT.RooFit.YVar(D1),ROOT.RooFit.ConditionalObservables(ROOT.RooArgSet(x)))
+        alphaMorph_Txy_signal.setVal(0)
+        alphaMorph_Prod_signal.setVal(0)
+        
+
+        prodNominalHist_TxyUp.Divide(prodNominalHist)
+        prodNominalHist_TxyDn.Divide(prodNominalHist)
+        prodUpHist_TxyUp.Divide(prodUpHist)
+        prodUpHist_TxyDn.Divide(prodUpHist)
+        prodDnHist_TxyUp.Divide(prodDnHist)
+        prodDnHist_TxyDn.Divide(prodDnHist)
+        
+        print "Plot 4"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdNominal".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodNominalHist.SetOption("colz")
+        prodNominalHist.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodNominalHist.SetXTitle("<c#tau> (#mum)")
+        prodNominalHist.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodNominalHist.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 5"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdUp".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodUpHist.SetOption("colz")
+        prodUpHist.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodUpHist.SetXTitle("<c#tau> (#mum)")
+        prodUpHist.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodUpHist.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 6"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdDn".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodDnHist.SetOption("colz")
+        prodDnHist.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodDnHist.SetXTitle("<c#tau> (#mum)")
+        prodDnHist.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodDnHist.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+
+        print "Plot 7"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdNominal_TxyUp".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodNominalHist_TxyUp.SetOption("colz")
+        prodNominalHist_TxyUp.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodNominalHist_TxyUp.SetXTitle("<c#tau> (#mum)")
+        prodNominalHist_TxyUp.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodNominalHist_TxyUp.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 8"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdNominal_TxyDn".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodNominalHist_TxyDn.SetOption("colz")
+        prodNominalHist_TxyDn.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodNominalHist_TxyDn.SetXTitle("<c#tau> (#mum)")
+        prodNominalHist_TxyDn.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodNominalHist_TxyDn.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 9"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdUp_TxyUp".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodUpHist_TxyUp.SetOption("colz")
+        prodUpHist_TxyUp.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodUpHist_TxyUp.SetXTitle("<c#tau> (#mum)")
+        prodUpHist_TxyUp.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodUpHist_TxyUp.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 11"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdUp_TxyDn".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodUpHist_TxyDn.SetOption("colz")
+        prodUpHist_TxyDn.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodUpHist_TxyDn.SetXTitle("<c#tau> (#mum)")
+        prodUpHist_TxyDn.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodUpHist_TxyDn.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 12"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdDn_TxyUp".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodDnHist_TxyUp.SetOption("colz")
+        prodDnHist_TxyUp.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodDnHist_TxyUp.SetXTitle("<c#tau> (#mum)")
+        prodDnHist_TxyUp.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodDnHist_TxyUp.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        print "Plot 8"
+        canvasname = "c_{0:.0f}TeV_{1}_ProdDn_TxyDn".format(self.sqrts,self.appendName)
+        ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+        prodDnHist_TxyDn.SetOption("colz")
+        prodDnHist_TxyDn.SetTitle("{0:.0f} TeV, {1}".format(self.sqrts,self.appendName))
+        prodDnHist_TxyDn.SetXTitle("<c#tau> (#mum)")
+        prodDnHist_TxyDn.SetYTitle("tanh(T_{{xy}} / {0:.0f} #mum)".format(TxyScale))
+        prodDnHist_TxyDn.Draw()
+        fplot.WriteTObject(ctest)
+        ctest.Close()
+        
+        
         fplot.Close()
 
 
@@ -1582,8 +1872,10 @@ class datacardClass_HCTau_1D:
         getattr(w,'import')(x, ROOT.RooFit.RecycleConflictNodes())
                 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
-#        getattr(w,'import')(r_fai_norm) ### Should this be renamed?
 
+
+        norm_Sig.SetNameTitle("ggH_norm","ggH_norm")
+        getattr(w,'import')(norm_Sig)
         ggHpdf.SetNameTitle("ggH","ggH")
         getattr(w,'import')(ggHpdf, ROOT.RooFit.RecycleConflictNodes())
         ggHpdf_systUp.SetNameTitle("ggH_Res{0}Up".format(self.appendName),"ggH_Res{0}Up".format(self.appendName))

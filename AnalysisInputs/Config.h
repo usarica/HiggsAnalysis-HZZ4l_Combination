@@ -55,8 +55,13 @@
 //TString filePath7TeV = "root://lxcms02//data/Higgs/rootuplesOut/130702b/PRODFSR/"; //FIXME: statistical tree not yet ready, take those from previous production
 //TString filePath8TeV = "root://lxcms02//data/Higgs/rootuplesOut/130715/PRODFSR_8TeV/";
 
-TString filePath7TeV = "root://lxcms02//data/Higgs/rootuplesOut/130720d/PRODFSR/";	 
-TString filePath8TeV = "root://lxcms02//data/Higgs/rootuplesOut/130720d/PRODFSR_8TeV/";
+//TString filePath7TeV = "root://lxcms02//data/Higgs/rootuplesOut/130720d/PRODFSR/";	 
+//TString filePath8TeV = "root://lxcms02//data/Higgs/rootuplesOut/130720d/PRODFSR_8TeV/";
+
+TString filePath7TeV = "/scratch0/hep/usarical/HiggsLifetime/No_SIP/LHC_7TeV/";
+TString filePath8TeV = "/scratch0/hep/usarical/HiggsLifetime/No_SIP/LHC_8TeV/";
+//TString filePath7TeV = "/afs/cern.ch/work/u/usarica/HZZ4l-125p6-FullAnalysis/LHC_7TeV/";
+//TString filePath8TeV = "/afs/cern.ch/work/u/usarica/HZZ4l-125p6-FullAnalysis/LHC_8TeV/";
 
 
 
@@ -69,7 +74,8 @@ TString lumistr8TeV = "19.712";
 
 
 // Location of output root files containing data events
-TString DataRootFilePath = "../CreateDatacards/CMSdata/"; 
+TString DataRootFilePath = "../CreateDatacards/CMSdata"; 
+//TString DataRootFilePath = "../CreateDatacards/CMSdata/"; 
 
 //--------------------
 // The number and values of mass points for which you have signal trees, for 7 and 8 TeV
