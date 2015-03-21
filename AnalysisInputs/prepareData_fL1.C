@@ -64,38 +64,37 @@ Mela* myMELA;
 int convertTreeForDatacards(TString inFile, TString outfile, bool useJET, bool VBFtag);
 
 // Run all final states and sqrts in one go
-void prepareData() {
+void prepareData_fL1() {
 
 #ifdef LINKMELA
   if (recompute_) myMELA = new Mela(usePowhegTemplate); // this is safely leaked
 #endif
 
-  gSystem->Exec("mkdir -p "+ DataRootFilePath);
-//  gSystem->Exec("mkdir -p "+ DataRootFilePath + "_fL1");
-//  gSystem->Exec("mkdir -p "+ DataRootFilePath + "_fZgsL1");
-//  gSystem->Exec("mkdir -p "+ DataRootFilePath + "_fa3perp");
+  string appendDataName = "_fL1";
+//  gSystem->Exec("mkdir -p "+ DataRootFilePath);
+  gSystem->Exec("mkdir -p "+ DataRootFilePath + appendDataName);
   Int_t nOut[18];
 
-  nOut[0]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr7TeV+"_1.root",true, true);
-  nOut[1]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr7TeV+"_1.root",true, true);
-  nOut[2]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr7TeV+"_1.root",true, true);
-  nOut[3]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr8TeV+"_1.root",true, true);
-  nOut[4]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr8TeV+"_1.root",true, true);
-  nOut[5]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr8TeV+"_1.root",true, true);
+  nOut[0]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr7TeV+"_1.root",true, true);
+  nOut[1]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr7TeV+"_1.root",true, true);
+  nOut[2]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr7TeV+"_1.root",true, true);
+  nOut[3]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr8TeV+"_1.root",true, true);
+  nOut[4]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr8TeV+"_1.root",true, true);
+  nOut[5]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr8TeV+"_1.root",true, true);
 
-  nOut[6]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr7TeV+"_0.root",true, false);
-  nOut[7]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr7TeV+"_0.root",true, false);
-  nOut[8]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr7TeV+"_0.root",true, false);
-  nOut[9]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr8TeV+"_0.root",true, false);
-  nOut[10]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr8TeV+"_0.root",true, false);
-  nOut[11]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr8TeV+"_0.root",true, false);
+  nOut[6]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr7TeV+"_0.root",true, false);
+  nOut[7]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr7TeV+"_0.root",true, false);
+  nOut[8]= convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr7TeV+"_0.root",true, false);
+  nOut[9]= convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr8TeV+"_0.root",true, false);
+  nOut[10]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr8TeV+"_0.root",true, false);
+  nOut[11]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr8TeV+"_0.root",true, false);
 
-  nOut[12]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr7TeV+".root",false, false);
-  nOut[13]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr7TeV+".root",false, false);
-  nOut[14]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr7TeV+".root",false, false);
-  nOut[15]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath+"/hzz4mu_"  +lumistr8TeV+".root",false, false);
-  nOut[16]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath+"/hzz4e_"   +lumistr8TeV+".root",false, false);
-  nOut[17]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath+"/hzz2e2mu_"+lumistr8TeV+".root",false, false);
+  nOut[12]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr7TeV+".root",false, false);
+  nOut[13]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr7TeV+".root",false, false);
+  nOut[14]=convertTreeForDatacards(filePath7TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr7TeV+".root",false, false);
+  nOut[15]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleMu.root",  DataRootFilePath + appendDataName+"/hzz4mu_"  +lumistr8TeV+".root",false, false);
+  nOut[16]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleEle.root", DataRootFilePath + appendDataName+"/hzz4e_"   +lumistr8TeV+".root",false, false);
+  nOut[17]=convertTreeForDatacards(filePath8TeV + "/data/HZZ4lTree_DoubleOr.root",  DataRootFilePath + appendDataName+"/hzz2e2mu_"+lumistr8TeV+".root",false, false);
 
   TString jetsT[3]={"DiJet     ",
 		    "Untagged  ",

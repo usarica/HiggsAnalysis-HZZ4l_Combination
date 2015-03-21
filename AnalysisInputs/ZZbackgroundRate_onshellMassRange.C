@@ -38,6 +38,7 @@
 //VBFtag convention: 0->0/1 Jets; 1->2+ jets; 2->No tagging
 
 const int SelectionScheme=4;
+double massRange[2] ={ 105.6, 140.6 };
 
 using namespace std;
 void compute(TString name, int sqrts, double lumi, int VBFtag);
@@ -45,7 +46,7 @@ double sumWeights(TString name, double lumi, int selVBF, int isQQBZZ=0);
 
 
 // Run both sqrts in one go
-void ZZbackgroundRate() {
+void ZZbackgroundRate_onshellMassRange() {
 
   compute(filePath7TeV, 7, lumi7TeV, 1);
   compute(filePath8TeV, 8, lumi8TeV, 1);
@@ -93,7 +94,7 @@ void compute(TString filePath, int sqrts, double lumi, int VBFtag){
   double ggZZ[3];
   
 	setprecision(9);
-	cout<<"qqZZ 4mu"<<endl;
+  cout<<"qqZZ 4mu"<<endl;  
   double qqZZ_4mu_ev4mu = sumWeights(filePath + "/4mu/HZZ4lTree_ZZTo4mu_Reprocessed.root",lumi,VBFtag,1);
   double qqZZ_4mu_ev4e = sumWeights(filePath + "/4mu/HZZ4lTree_ZZTo4e_Reprocessed.root",lumi,VBFtag,1);
   double qqZZ_4mu_ev2e2mu = sumWeights(filePath + "/4mu/HZZ4lTree_ZZTo2e2mu_Reprocessed.root",lumi,VBFtag,1);
@@ -155,8 +156,9 @@ void compute(TString filePath, int sqrts, double lumi, int VBFtag){
   TString ssqrts = (long) sqrts + TString("TeV");
   for (int i=0; i<3; ++i) {
     TString outfile;
-    if (VBFtag<2) outfile = "CardFragments/ZZRates_" + ssqrts + "_" + schannel[i] + "_" + Form("%d",int(VBFtag)) + ".txt";
-    if (VBFtag==2) outfile = "CardFragments/ZZRates_" + ssqrts + "_" + schannel[i] + ".txt"; 
+		TString crange = Form("M4l_%.1f-%.1f", massRange[0], massRange[1]);
+		if (VBFtag<2) outfile = "CardFragments/ZZRates_" + crange + "_" + ssqrts + "_" + schannel[i] + "_" + Form("%d", int(VBFtag)) + ".txt";
+		if (VBFtag==2) outfile = "CardFragments/ZZRates_" + crange + "_" + ssqrts + "_" + schannel[i] + ".txt";
     ofstream of(outfile,ios_base::out);
     of << "## rates --- format = chan N lumi ##" << endl
        << "## if lumi is blank, lumi for cards used ##" << endl;
@@ -200,8 +202,8 @@ double sumWeights(TString name, double lumi, int selVBF, int isQQBZZ){
 	
 	for (int iEvt=0; iEvt<tree->GetEntries(); iEvt++){
     tree->GetEntry(iEvt);
-		if (ZZMass<100 || ZZMass>=1600) continue;
-    if( (selVBF == 1 && NJets > 1) || (selVBF == 0 && NJets < 2) || (selVBF==2)) totEvents += MC_weight*MC_weight_extra;
+		if (ZZMass<massRange[0] || ZZMass>=massRange[1]) continue;
+		if ((selVBF == 1 && NJets > 1) || (selVBF == 0 && NJets < 2) || (selVBF==2)) totEvents += MC_weight*MC_weight_extra;
   }
 
   return totEvents*lumi;

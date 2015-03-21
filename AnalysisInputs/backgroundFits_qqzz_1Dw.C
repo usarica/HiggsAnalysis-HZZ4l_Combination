@@ -26,16 +26,45 @@
   #include "TH1.h"
 */
 
+#include "RooGlobalFunc.h"
+#include "RooRealVar.h"
+#include "RooDataSet.h"
+#include "RooGaussian.h"
+#include "RooConstVar.h"
+#include "RooChebychev.h"
+#include "RooAddPdf.h"
+#include "RooWorkspace.h"
+#include "RooPlot.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TSystem.h"
+#include "TCanvas.h"
+#include "TLegend.h"
+#include "TPaveText.h"
+#include "TString.h"
+#include "TAxis.h"
+#include "TFile.h"
+#include "TH1.h"
+#include "TF1.h"
+#include "TTree.h"
+#include "TChain.h"
+
+#include "../../CombinedLimit/interface/HZZ4LRooPdfs.h"
 
 #include <iostream>
+#include <fstream>
 #include <iomanip>
+#include <string>
 
-using namespace RooFit ;
+using namespace std;
+using namespace RooFit;
 
 
 //----------> SET INPUT VARIABLES in Config.h
 #include "Config.h"
 //<----------
+
+const int SelectionScheme=4;
 
 void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag);
 
@@ -45,26 +74,55 @@ void backgroundFits_qqzz_1Dw() {
   gSystem->Exec("mkdir -p bkgFigs7TeV");
   gSystem->Exec("mkdir -p bkgFigs8TeV");
 
-  backgroundFits_qqzz_1Dw(1,7,1);
-  backgroundFits_qqzz_1Dw(2,7,1);
-  backgroundFits_qqzz_1Dw(3,7,1);  
+//  backgroundFits_qqzz_1Dw(1,7,1);
+//  backgroundFits_qqzz_1Dw(2,7,1);
+//  backgroundFits_qqzz_1Dw(3,7,1);  
   backgroundFits_qqzz_1Dw(1,8,1);
   backgroundFits_qqzz_1Dw(2,8,1);
   backgroundFits_qqzz_1Dw(3,8,1);
 
-  backgroundFits_qqzz_1Dw(1,7,0);
-  backgroundFits_qqzz_1Dw(2,7,0);
-  backgroundFits_qqzz_1Dw(3,7,0);  
+//  backgroundFits_qqzz_1Dw(1,7,0);
+//  backgroundFits_qqzz_1Dw(2,7,0);
+//  backgroundFits_qqzz_1Dw(3,7,0);  
   backgroundFits_qqzz_1Dw(1,8,0);
   backgroundFits_qqzz_1Dw(2,8,0);
   backgroundFits_qqzz_1Dw(3,8,0);
 
-  backgroundFits_qqzz_1Dw(1,7,2);
-  backgroundFits_qqzz_1Dw(2,7,2);
-  backgroundFits_qqzz_1Dw(3,7,2);  
+//  backgroundFits_qqzz_1Dw(1,7,2);
+//  backgroundFits_qqzz_1Dw(2,7,2);
+//  backgroundFits_qqzz_1Dw(3,7,2);  
   backgroundFits_qqzz_1Dw(1,8,2);
   backgroundFits_qqzz_1Dw(2,8,2);
   backgroundFits_qqzz_1Dw(3,8,2);
+}
+
+
+bool testSelection(
+	float Lep1SIP, float Lep2SIP, float Lep3SIP, float Lep4SIP,
+	float Lep1_Z1SIP, float Lep2_Z1SIP, float Lep3_Z1SIP, float Lep4_Z1SIP,
+	float KalmanCandVtx_chi2,
+	int scheme=4
+	){
+	bool pass=true;
+	switch (scheme){
+	case 0:
+		if (Lep1SIP>=4 || Lep2SIP>=4 || Lep3SIP>=4 || Lep4SIP>=4) pass = false;
+		break;
+	case 1:
+		break;
+	case 2:
+		if (Lep1_Z1SIP>=4 || Lep2_Z1SIP>=4 || Lep3_Z1SIP>=5 || Lep4_Z1SIP>=5) pass = false;
+		break;
+	case 3:
+		if (KalmanCandVtx_chi2>=30) pass = false;
+		break;
+	case 4:
+		if (Lep1_Z1SIP>=4 || Lep2_Z1SIP>=4 || Lep3_Z1SIP>=5 || Lep4_Z1SIP>=5 || KalmanCandVtx_chi2>=30) pass = false;
+		break;
+	default:
+		break;
+	}
+	return pass;
 }
 
 // The actual job
@@ -84,64 +142,93 @@ void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag)
   TString outfile;
   if(VBFtag<2) outfile = "CardFragments/qqzzBackgroundFit_" + ssqrts + "_" + schannel + "_" + Form("%d",int(VBFtag)) + ".txt";
   if(VBFtag==2) outfile = "CardFragments/qqzzBackgroundFit_" + ssqrts + "_" + schannel + ".txt";
-  ofstream of(outfile,ios_base::out);
+	string coutfile = (string) outfile;
+	ofstream of(coutfile.c_str(), ios_base::out);
   of << "### background functions ###" << endl;
 
-
-  gSystem->AddIncludePath("-I$ROOFITSYS/include");
-  gROOT->ProcessLine(".L ../CreateDatacards/include/tdrstyle.cc");
-  setTDRStyle(false);
+//  setTDRStyle(false);
   gStyle->SetPadLeftMargin(0.16);
 
   TString filepath;
   if (sqrts==7) {
-    filepath = filePath7TeV;
-  } else if (sqrts==8) {
-    filepath = filePath8TeV;
-  }
+		filepath = "/scratch0/hep/usarical/HiggsLifetime/No_SIP/LHC_7TeV/";
+//		filepath = filePath7TeV;
+	}
+	else if (sqrts==8) {
+		filepath = "/scratch0/hep/usarical/HiggsLifetime/No_SIP/LHC_8TeV/";
+//		filepath = filePath8TeV;
+	}
 
   TChain* tree = new TChain("SelectedTree");
-  tree->Add( filepath+ "/" + (schannel=="2e2mu"?"2mu2e":schannel) + "/HZZ4lTree_ZZTo*.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo4mu_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo4e_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo4tau_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo2e2mu_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo2e2tau_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ZZTo2mu2tau_Reprocessed.root");
 
 
-  RooRealVar* MC_weight = new RooRealVar("MC_weight","MC_weight",0.,2.) ; 
-  RooRealVar* ZZMass = new RooRealVar("ZZMass","ZZMass",100.,1000.);
+	RooRealVar* MC_weight = new RooRealVar("MC_weight", "MC_weight", 0., 100.);
+	RooRealVar* ZZMass = new RooRealVar("ZZMass", "ZZMass", 100., 1600.);
   RooRealVar* NJets30 = new RooRealVar("NJets30","NJets30",0.,100.);
-  RooArgSet ntupleVarSet(*ZZMass,*NJets30,*MC_weight);
+	RooArgSet ntupleVarSet(*ZZMass, *NJets30, *MC_weight);
   RooDataSet *set = new RooDataSet("set","set",ntupleVarSet,WeightVar("MC_weight"));
 
-  Float_t myMC,myMass;
+  Float_t myMC,myMC_extra,myMass;
   Short_t myNJets;
   int nentries = tree->GetEntries();
 
+	myMC_extra=1;
   tree->SetBranchAddress("ZZMass",&myMass);
-  tree->SetBranchAddress("MC_weight",&myMC);
-  tree->SetBranchAddress("NJets30",&myNJets);
+	tree->SetBranchAddress("MC_weight", &myMC);
+	if (tree->GetBranchStatus("MC_weight_QQZZEWK")) tree->SetBranchAddress("MC_weight_QQZZEWK", &myMC_extra);
+	tree->SetBranchAddress("NJets30", &myNJets);
 
-  for(int i =0;i<nentries;i++) {
-    tree->GetEntry(i);
-    if(VBFtag==1 && myNJets<2)continue;
-    if(VBFtag==0 && myNJets>1)continue;
+	Float_t Lep1SIP=0, Lep2SIP=0, Lep3SIP=0, Lep4SIP=0;
+	Float_t Lep1_Z1SIP=0, Lep2_Z1SIP=0, Lep3_Z1SIP=0, Lep4_Z1SIP=0;
+	Float_t KalmanCandVtx_chi2=0;
 
-    ntupleVarSet.setRealValue("ZZMass",myMass);
-    ntupleVarSet.setRealValue("MC_weight",myMC);
-    ntupleVarSet.setRealValue("NJets30",(double)myNJets);
+	if (SelectionScheme!=0){
+		tree->SetBranchAddress("Lep1SIP", &Lep1SIP);
+		tree->SetBranchAddress("Lep2SIP", &Lep2SIP);
+		tree->SetBranchAddress("Lep3SIP", &Lep3SIP);
+		tree->SetBranchAddress("Lep4SIP", &Lep4SIP);
+		tree->SetBranchAddress("Lep1_Z1SIP", &Lep1_Z1SIP);
+		tree->SetBranchAddress("Lep2_Z1SIP", &Lep2_Z1SIP);
+		tree->SetBranchAddress("Lep3_Z1SIP", &Lep3_Z1SIP);
+		tree->SetBranchAddress("Lep4_Z1SIP", &Lep4_Z1SIP);
+		tree->SetBranchAddress("KalmanCandVtx_chi2", &KalmanCandVtx_chi2);
+	}
+	for (int i =0; i<nentries; i++) {
+		tree->GetEntry(i);
+		if (VBFtag==1 && myNJets<2)continue;
+		if (VBFtag==0 && myNJets>1)continue;
+		if (myMass<100 || myMass>=1600) continue;
+		bool passSelection = testSelection(
+			Lep1SIP, Lep2SIP, Lep3SIP, Lep4SIP,
+			Lep1_Z1SIP, Lep2_Z1SIP, Lep3_Z1SIP, Lep4_Z1SIP,
+			KalmanCandVtx_chi2,
+			SelectionScheme
+			);
+		if (!passSelection) continue;
 
-    set->add(ntupleVarSet, myMC);
-  }
+		ntupleVarSet.setRealValue("ZZMass", myMass);
+		ntupleVarSet.setRealValue("MC_weight", myMC*myMC_extra);
+		ntupleVarSet.setRealValue("NJets30", (double)myNJets);
+
+		set->add(ntupleVarSet, myMC*myMC_extra);
+	}
 
   double totalweight = 0.;
   double totalweight_z = 0.;
   for (int i=0 ; i<set->numEntries() ; i++) { 
     //set->get(i) ; 
-    RooArgSet* row = set->get(i) ;
+    const RooArgSet* row = set->get(i) ;
     //row->Print("v");
     totalweight += set->weight();
     if (row->getRealValue("ZZMass") < 200) totalweight_z += set->weight();
   } 
   cout << "nEntries: " << set->numEntries() << ", totalweight: " << totalweight << ", totalweight_z: " << totalweight_z << endl;
-
-  gSystem->Load("libHiggsAnalysisCombinedLimit.so");
 	
   //// ---------------------------------------
   //Background
@@ -289,12 +376,12 @@ void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag)
 
 
   // Plot m4l and
-  RooPlot* frameM4l = ZZMass->frame(Title("M4L"),Range(100,600),Bins(250)) ;
-  set->plotOn(frameM4l, MarkerStyle(20), Rescale(rescale)) ;
+  RooPlot* frameM4l = ZZMass->frame(Title("M4L"),Range(100,700),Bins(75)) ;
+  set->plotOn(frameM4l, MarkerStyle(20)) ;
   
   //set->plotOn(frameM4l) ;
-  RooPlot* frameM4lz = ZZMass->frame(Title("M4L"),Range(100,200),Bins(100)) ;
-  set->plotOn(frameM4lz, MarkerStyle(20), Rescale(rescale)) ;
+  RooPlot* frameM4lz = ZZMass->frame(Title("M4L"),Range(100,220),Bins(15)) ;
+  set->plotOn(frameM4lz, MarkerStyle(20)) ;
 
 
   int iLineColor = 1;
@@ -303,16 +390,21 @@ void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag)
   if (channel == 3) { iLineColor = 4; lab = "2e2#mu"; }
   if (channel == 2) { iLineColor = 6; lab = "4e"; }
 
-  bkg_qqzz->plotOn(frameM4l,LineColor(iLineColor),NormRange("largerange")) ;
-  bkg_qqzz->plotOn(frameM4lz,LineColor(iLineColor),NormRange("zoomrange")) ;
-    
+	ZZMass->setBins((1600-100)/8);
+	TH1F* bkg_qqzz_histo = (TH1F*) bkg_qqzz->createHistogram(Form("%s_histo",bkg_qqzz->GetName()),*ZZMass);
+	bkg_qqzz_histo->SetLineColor(iLineColor);
+	bkg_qqzz_histo->Scale(totalweight/bkg_qqzz_histo->Integral());
+//  bkg_qqzz->plotOn(frameM4l,LineColor(iLineColor),NormRange("largerange")) ;
+//	bkg_qqzz->plotOn(frameM4lz, LineColor(iLineColor), NormRange("zoomrange"));
+//	bkg_qqzz->plotOn(frameM4lz, LineColor(iLineColor));
+
 //second shape to compare with (if previous comparison code unceommented)
   //bkg_qqzz_bkgd->plotOn(frameM4l,LineColor(1),NormRange("largerange")) ;
   //bkg_qqzz_bkgd->plotOn(frameM4lz,LineColor(1),NormRange("zoomrange")) ;
     
   
-  double normalizationBackground_qqzz = bkg_qqzz->createIntegral( RooArgSet(*ZZMass), Range("fullrange") )->getVal();
-  cout << "Norm all = " << normalizationBackground_qqzz << endl;
+//  double normalizationBackground_qqzz = bkg_qqzz->createIntegral( RooArgSet(*ZZMass), Range("fullrange") )->getVal();
+//  cout << "Norm all = " << normalizationBackground_qqzz << endl;
     
   frameM4l->GetXaxis()->SetTitle("m_{4l} [GeV]");
   frameM4l->GetYaxis()->SetTitle("a.u.");
@@ -351,8 +443,9 @@ void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag)
   TCanvas *c = new TCanvas("c","c",800,600);
   c->cd();
   frameM4l->Draw();
-  frameM4l->GetYaxis()->SetRangeUser(0,0.4);
-  if(channel == 3)frameM4l->GetYaxis()->SetRangeUser(0,0.7);
+//  frameM4l->GetYaxis()->SetRangeUser(0,0.4);
+//  if(channel == 3)frameM4l->GetYaxis()->SetRangeUser(0,0.7);
+	bkg_qqzz_histo->Draw("same");
   box2->Draw();
   pt->Draw();
   pt2->Draw();
@@ -368,10 +461,12 @@ void backgroundFits_qqzz_1Dw(int channel, int sqrts, int VBFtag)
   c2->Divide(2,1);
   c2->cd(1);
   frameM4l->Draw();
-  box2->Draw("same");
+	bkg_qqzz_histo->Draw("same");
+	box2->Draw("same");
   c2->cd(2);
   frameM4lz->Draw();
-  box2->Draw("same");
+	bkg_qqzz_histo->Draw("same");
+	box2->Draw("same");
   
   if (VBFtag<2) outputName = outputPath + "bkgqqzz_" + schannel + "_z" + "_" + Form("%d",int(VBFtag));
   if (VBFtag==2) outputName = outputPath + "bkgqqzz_" + schannel + "_z";

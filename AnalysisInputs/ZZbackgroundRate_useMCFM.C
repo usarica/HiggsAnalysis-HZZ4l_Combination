@@ -45,7 +45,7 @@ double sumWeights(TString name, double lumi, int selVBF, int isQQBZZ=0);
 
 
 // Run both sqrts in one go
-void ZZbackgroundRate() {
+void ZZbackgroundRate_useMCFM() {
 
   compute(filePath7TeV, 7, lumi7TeV, 1);
   compute(filePath8TeV, 8, lumi8TeV, 1);
@@ -134,29 +134,29 @@ void compute(TString filePath, int sqrts, double lumi, int VBFtag){
       <<" -> "<<qqZZ[2]<<endl;
   
   cout<<"ggZZ 4mu"<<endl;
-  double ggZZ_4mu_ev2l2l = sumWeights(filePath + "/4mu/HZZ4lTree_ggZZ2l2l_Reprocessed.root",lumi,VBFtag);
-  double ggZZ_4mu_ev4l = sumWeights(filePath + "/4mu/HZZ4lTree_ggZZ4l_Reprocessed.root",lumi,VBFtag);
+  double ggZZ_4mu_ev2l2l = sumWeights(filePath + "/4mu/HZZ4lTree_ggTo2e2mu_Contin-MCFM67_Reprocessed.root",lumi,VBFtag);
+	double ggZZ_4mu_ev4l = sumWeights(filePath + "/4mu/HZZ4lTree_ggTo4mu_Contin-MCFM67_Reprocessed.root", lumi, VBFtag) + sumWeights(filePath + "/4mu/HZZ4lTree_ggTo4e_Contin-MCFM67_Reprocessed.root", lumi, VBFtag);
   ggZZ[0] = ggZZ_4mu_ev4l + ggZZ_4mu_ev2l2l;
   cout<<ggZZ_4mu_ev4l<<" + "<<ggZZ_4mu_ev2l2l<<" -> "<< ggZZ[0] <<endl;
 
   cout<<"ggZZ 4e"<<endl;
-  double ggZZ_4e_ev2l2l = sumWeights(filePath + "/4e/HZZ4lTree_ggZZ2l2l_Reprocessed.root",lumi,VBFtag);
-  double ggZZ_4e_ev4l = sumWeights(filePath + "/4e/HZZ4lTree_ggZZ4l_Reprocessed.root",lumi,VBFtag);
-  ggZZ[1] = ggZZ_4e_ev4l + ggZZ_4e_ev2l2l;
+	double ggZZ_4e_ev2l2l = sumWeights(filePath + "/4e/HZZ4lTree_ggTo2e2mu_Contin-MCFM67_Reprocessed.root", lumi, VBFtag);
+	double ggZZ_4e_ev4l = sumWeights(filePath + "/4e/HZZ4lTree_ggTo4mu_Contin-MCFM67_Reprocessed.root", lumi, VBFtag) + sumWeights(filePath + "/4e/HZZ4lTree_ggTo4e_Contin-MCFM67_Reprocessed.root", lumi, VBFtag);
+	ggZZ[1] = ggZZ_4e_ev4l + ggZZ_4e_ev2l2l;
   cout<<ggZZ_4e_ev4l<<" + "<<ggZZ_4e_ev2l2l<<" -> "<< ggZZ[1] <<endl;
 
   cout<<"ggZZ 2e2mu"<<endl;
-  double ggZZ_2e2mu_ev2l2l = sumWeights(filePath + "/2mu2e/HZZ4lTree_ggZZ2l2l_Reprocessed.root",lumi,VBFtag);
-  double ggZZ_2e2mu_ev4l = sumWeights(filePath + "/2mu2e/HZZ4lTree_ggZZ4l_Reprocessed.root",lumi,VBFtag);
-  ggZZ[2] = ggZZ_2e2mu_ev4l + ggZZ_2e2mu_ev2l2l;
+	double ggZZ_2e2mu_ev2l2l = sumWeights(filePath + "/2mu2e/HZZ4lTree_ggTo2e2mu_Contin-MCFM67_Reprocessed.root", lumi, VBFtag);
+	double ggZZ_2e2mu_ev4l = sumWeights(filePath + "/2mu2e/HZZ4lTree_ggTo4mu_Contin-MCFM67_Reprocessed.root", lumi, VBFtag) + sumWeights(filePath + "/2mu2e/HZZ4lTree_ggTo4e_Contin-MCFM67_Reprocessed.root", lumi, VBFtag);
+	ggZZ[2] = ggZZ_2e2mu_ev4l + ggZZ_2e2mu_ev2l2l;
   cout<<ggZZ_2e2mu_ev4l<<" + "<<ggZZ_2e2mu_ev2l2l<<" -> "<< ggZZ[2] <<endl;
 
   TString schannel[3] = {"4mu","4e","2e2mu"};
   TString ssqrts = (long) sqrts + TString("TeV");
   for (int i=0; i<3; ++i) {
     TString outfile;
-    if (VBFtag<2) outfile = "CardFragments/ZZRates_" + ssqrts + "_" + schannel[i] + "_" + Form("%d",int(VBFtag)) + ".txt";
-    if (VBFtag==2) outfile = "CardFragments/ZZRates_" + ssqrts + "_" + schannel[i] + ".txt"; 
+    if (VBFtag<2) outfile = "CardFragments/ZZRates_withggMCFM_" + ssqrts + "_" + schannel[i] + "_" + Form("%d",int(VBFtag)) + ".txt";
+    if (VBFtag==2) outfile = "CardFragments/ZZRates_withggMCFM_" + ssqrts + "_" + schannel[i] + ".txt"; 
     ofstream of(outfile,ios_base::out);
     of << "## rates --- format = chan N lumi ##" << endl
        << "## if lumi is blank, lumi for cards used ##" << endl;

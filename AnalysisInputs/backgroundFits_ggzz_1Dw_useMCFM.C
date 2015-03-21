@@ -70,7 +70,7 @@ const int SelectionScheme=4;
 void backgroundFits_ggzz_1Dw(int channel, int sqrts, int VBFtag);
 
 // Run all final states and sqrts in one go
-void backgroundFits_ggzz_1Dw() {
+void backgroundFits_ggzz_1Dw_useMCFM() {
   gSystem->Exec("mkdir -p bkgFigs7TeV");
   gSystem->Exec("mkdir -p bkgFigs8TeV");
 
@@ -139,8 +139,8 @@ void backgroundFits_ggzz_1Dw(int channel, int sqrts, int VBFtag)
   cout << "schannel = " << schannel << "  sqrts = " << sqrts << " VBFtag = "<< VBFtag << endl;
 
   TString outfile;
-  if(VBFtag<2) outfile = "CardFragments/ggzzBackgroundFit_" + ssqrts + "_" + schannel + "_" + Form("%d",int(VBFtag)) + ".txt";
-  if(VBFtag==2) outfile = "CardFragments/ggzzBackgroundFit_" + ssqrts + "_" + schannel + ".txt";
+  if(VBFtag<2) outfile = "CardFragments/ggzzMCFMBackgroundFit_" + ssqrts + "_" + schannel + "_" + Form("%d",int(VBFtag)) + ".txt";
+  if(VBFtag==2) outfile = "CardFragments/ggzzMCFMBackgroundFit_" + ssqrts + "_" + schannel + ".txt";
   ofstream of(outfile,ios_base::out);
 
 
@@ -158,8 +158,9 @@ void backgroundFits_ggzz_1Dw(int channel, int sqrts, int VBFtag)
 	}
 
   TChain* tree = new TChain("SelectedTree");
-	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ggZZ4l_Reprocessed.root");
-	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ggZZ2l2l_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ggTo4mu_Contin-MCFM67_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ggTo4e_Contin-MCFM67_Reprocessed.root");
+	tree->Add(filepath+ "/" + (schannel=="2e2mu" ? "2mu2e" : schannel) + "/HZZ4lTree_ggTo2e2mu_Contin-MCFM67_Reprocessed.root");
 
 
 	RooRealVar* MC_weight = new RooRealVar("MC_weight", "MC_weight", 0., 100.);
@@ -341,8 +342,8 @@ void backgroundFits_ggzz_1Dw(int channel, int sqrts, int VBFtag)
   TString outputPath = "bkgFigs";
   outputPath = outputPath+ (long) sqrts + "TeV/";
   TString outputName;
-  if(VBFtag<2) outputName =  outputPath + "bkgggzz_" + schannel + "_" + Form("%d",int(VBFtag));
-  if(VBFtag==2) outputName =  outputPath + "bkgggzz_" + schannel;
+  if(VBFtag<2) outputName =  outputPath + "bkgMCFMggzz_" + schannel + "_" + Form("%d",int(VBFtag));
+  if(VBFtag==2) outputName =  outputPath + "bkgMCFMggzz_" + schannel;
   c->SaveAs(outputName + ".eps");
   c->SaveAs(outputName + ".png");
   c->SaveAs(outputName + ".root");
