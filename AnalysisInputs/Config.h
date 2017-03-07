@@ -73,8 +73,7 @@ TString lumistr8TeV = "19.712";
 
 
 // Location of output root files containing data events
-TString DataRootFilePath = "../CreatefLambda1Datacards/CMSdata"; 
-//TString DataRootFilePath = "../CreateDatacards/CMSdata/"; 
+TString DataRootFilePath = "../CreateDatacards/CMSdata"; 
 
 //--------------------
 // The number and values of mass points for which you have signal trees, for 7 and 8 TeV
