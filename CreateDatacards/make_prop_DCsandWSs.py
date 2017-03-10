@@ -30,6 +30,10 @@ def parseOptions():
     parser.add_option('--mPOLE', '--mH', type='float', dest='mPOLE', default="125.6",
                       help='mPOLE (--mPOLE/--mH): Pole mass for the Higgs (def=125.6)')
 
+    parser.add_option('--newMu', action='store_true', dest='newMu', default=False ,help='Use new muV=R*RV, muF=R*RF parameterization. Old approach is to have mu=r.')
+    parser.add_option('--sigmaVVai', type='string', dest='sigmaVVai', default="",
+                      help='sigmaVVai: Production (not *decay) sigma_ai(VBF+VH), follow T1,T2..T4..T7..T9, comma-separated (def=empty)')
+
 
     # store options and arguments as global variables
     global opt, args
@@ -44,6 +48,16 @@ def parseOptions():
         print 'Please pass an input directory! Exiting...'
         sys.exit()
 
+    sigmaOpt = opt.sigmaVVai.split(",")
+    opt.sigmaVVaiVal = dict()
+    for i in range(1,10):
+       opt.sigmaVVaiVal["T{0:.0f}".format(i)] = float(0.)
+    if opt.newMu:
+      for sopt in sigmaOpt:
+        ssopt = sopt.split(":")
+        if len(ssopt)==2:
+          opt.sigmaVVaiVal[ssopt[0]]=float(ssopt[1])
+          print "sigmaVVai for {0} = {1}".format(ssopt[0],opt.sigmaVVaiVal[ssopt[0]])
 
 
 
@@ -115,11 +129,13 @@ def creationLoop(directory):
 
             print mh
 
-            makeDirectory(directory+'/HCG/'+mhs)
-            makeDirectory(directory+'/HCG_XSxBR/'+mhs)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt.templateDir,opt.dataDirAppend)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt.templateDir,opt.dataDirAppend)
-            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt.templateDir,opt.dataDirAppend)
+            sqrts = str(theInputs4e['sqrts']).replace('.0','')
+
+            makeDirectory(directory+'/HCG/'+mhs+'/'+sqrts+'TeV')
+            makeDirectory(directory+'/HCG_XSxBR/'+mhs+'/'+sqrts+'TeV')
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4e,opt)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs4mu,opt)
+            myClass.makeCardsWorkspaces(mh,directory,theInputs2e2mu,opt)
 
             c += 1
 
