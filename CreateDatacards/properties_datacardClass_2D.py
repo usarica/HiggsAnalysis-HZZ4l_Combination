@@ -1565,6 +1565,16 @@ class properties_datacardClass_2D:
 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
 
+        if self.r_fai_norm is None:
+           print "ERROR: self.r_fai_norm is None!"
+           sys.exit()
+        else:
+           print "Importing {}".format(self.r_fai_norm.GetName())
+           self.r_fai_norm.SetName("ggH_norm")
+           getattr(w,'import')(self.r_fai_norm,ROOT.RooCmdArg()) ### Should this be renamed?
+           #getattr(w,'import')(self.r_fai_norm, ROOT.RooFit.Rename("ggH_norm")) ### Should this be renamed?
+           self.r_fai_norm.Print("v")
+
         if theOptions.newMu:
            print "Importing new mu parameterization variables"
            getattr(w,'import')(self.R, ROOT.RooFit.RecycleConflictNodes())
@@ -1593,16 +1603,6 @@ class properties_datacardClass_2D:
            getattr(w,'import')(self.rv_fai_realints_norm, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(self.rv_fai_imagints_norm, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(self.rv_fai_norm_prod, ROOT.RooFit.RecycleConflictNodes())
-
-        if self.r_fai_norm is None:
-           print "ERROR: self.r_fai_norm is None!"
-           sys.exit()
-        else:
-           print "Importing {}".format(self.r_fai_norm.GetName())
-           self.r_fai_norm.SetName("ggH_norm")
-           getattr(w,'import')(self.r_fai_norm,ROOT.RooCmdArg()) ### Should this be renamed?
-           #getattr(w,'import')(self.r_fai_norm, ROOT.RooFit.Rename("ggH_norm")) ### Should this be renamed?
-           self.r_fai_norm.Print("v")
 
         ggHpdf.SetNameTitle("ggH","ggH")
         getattr(w,'import')(ggHpdf, ROOT.RooFit.RecycleConflictNodes())

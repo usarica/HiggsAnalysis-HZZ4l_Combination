@@ -1526,7 +1526,7 @@ class properties_datacardClass_Z4l:
 
 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
-        getattr(w,'import')(self.r_fai_norm,ROOT.RooCmdArg()) ### Should this be renamed?
+        getattr(w,'import')(r_fai_norm,ROOT.RooCmdArg()) ### Should this be renamed?
 
 
         ggHpdf.SetNameTitle("ggH","ggH")
