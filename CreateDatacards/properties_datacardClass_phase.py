@@ -1252,20 +1252,20 @@ class properties_datacardClass_phase:
 
         #rfvSigRate_ggH = ROOT.RooFormulaVar("ggH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),self.getVariable(signalCB_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),sig_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),self.bUseCBnoConvolution)),ROOT.RooArgList(rfvSigEff_ggH, rhfXsBrFuncV_1))
 
-        rfvSigRate_ggH = ROOT.RooFormulaVar("ggH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ggH),ROOT.RooArgList(rfvSigEff_ggH, rhfXsBrFuncV_1))
+        rfvSigRate_ggH = ROOT.RooFormulaVar("ggHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ggH),ROOT.RooArgList(rfvSigEff_ggH, rhfXsBrFuncV_1))
 
         print "Compare integrals: integral_ggH=",integral_ggH,"  ; calculated=",self.getVariable(signalCB_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),sig_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),self.bUseCBnoConvolution)
 
-        rfvSigRate_VBF = ROOT.RooFormulaVar("qqH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_VBF),ROOT.RooArgList(rfvSigEff_qqH, rhfXsBrFuncV_2))
+        rfvSigRate_VBF = ROOT.RooFormulaVar("qqHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_VBF),ROOT.RooArgList(rfvSigEff_qqH, rhfXsBrFuncV_2))
 
 
-        rfvSigRate_WH = ROOT.RooFormulaVar("WH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_WH),ROOT.RooArgList(rfvSigEff_WH, rhfXsBrFuncV_3))
+        rfvSigRate_WH = ROOT.RooFormulaVar("WHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_WH),ROOT.RooArgList(rfvSigEff_WH, rhfXsBrFuncV_3))
 
 
-        rfvSigRate_ZH = ROOT.RooFormulaVar("ZH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ZH),ROOT.RooArgList(rfvSigEff_ZH, rhfXsBrFuncV_4))
+        rfvSigRate_ZH = ROOT.RooFormulaVar("ZHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ZH),ROOT.RooArgList(rfvSigEff_ZH, rhfXsBrFuncV_4))
 
 
-        rfvSigRate_ttH = ROOT.RooFormulaVar("ttH_norm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ttH),ROOT.RooArgList(rfvSigEff_ttH, rhfXsBrFuncV_5))
+        rfvSigRate_ttH = ROOT.RooFormulaVar("ttHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ttH),ROOT.RooArgList(rfvSigEff_ttH, rhfXsBrFuncV_5))
 
 
         print signalCB_ggH.createIntegral(ROOT.RooArgSet(CMS_zz4l_mass)).getVal(),"   ",sig_ggH.createIntegral(ROOT.RooArgSet(CMS_zz4l_mass)).getVal()
@@ -1489,19 +1489,21 @@ class properties_datacardClass_phase:
            getattr(w,'import')(self.CStotal, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(self.CSfracff, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(self.CSfracVV, ROOT.RooFit.RecycleConflictNodes())
-           getattr(w,'import')(r_fai_norm_dec)
+           #getattr(w,'import')(self.r_fai_norm_dec,ROOT.RooCmdArg())
            getattr(w,'import')(rv_fai_pures_norm, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(rv_fai_realints_norm, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(rv_fai_imagints_norm, ROOT.RooFit.RecycleConflictNodes())
            getattr(w,'import')(rv_fai_norm_prod, ROOT.RooFit.RecycleConflictNodes())
 
-        if r_fai_norm is None:
-           print "ERROR: r_fai_norm is None!"
+        if self.r_fai_norm is None:
+           print "ERROR: self.r_fai_norm is None!"
            sys.exit()
         else:
-           print "Importing {}".format(r_fai_norm.GetName())
-           getattr(w,'import')(r_fai_norm) ### Should this be renamed?
-           r_fai_norm.Print("v")
+           print "Importing {}".format(self.r_fai_norm.GetName())
+           self.r_fai_norm.SetName("ggH_norm")
+           getattr(w,'import')(self.r_fai_norm,ROOT.RooCmdArg()) ### Should this be renamed?
+           #getattr(w,'import')(self.r_fai_norm, ROOT.RooFit.Rename("ggH_norm")) ### Should this be renamed?
+           self.r_fai_norm.Print("v")
 
 
 
