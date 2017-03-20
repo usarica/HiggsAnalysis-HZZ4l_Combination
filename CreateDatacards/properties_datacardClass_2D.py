@@ -101,7 +101,7 @@ class properties_datacardClass_2D:
     def makeCardsWorkspaces(self, theMH, theOutputDir, theInputs, theOptions):
 
         ## --------------- SETTINGS AND DECLARATIONS --------------- ##
-        DEBUG = False
+        DEBUG = True
 
         self.mH = theMH
         self.SMDsigCut = 1.
@@ -625,6 +625,33 @@ class properties_datacardClass_2D:
         ggHpdf_syst1Up = ROOT.HZZ4L_RooSpinZeroPdf_2D(ggHpdfName_syst1Up,ggHpdfName_syst1Up,D1,D2,D3,x,y,phix,phiy,ROOT.RooArgList(Sig_T_1_ScaleResUp_histfunc,Sig_T_2_ScaleResUp_histfunc,Sig_T_3_ScaleResUp_histfunc,Sig_T_4_ScaleResUp_histfunc,Sig_T_5_ScaleResUp_histfunc,Sig_T_6_ScaleResUp_histfunc,Sig_T_7_ScaleResUp_histfunc,Sig_T_8_ScaleResUp_histfunc,Sig_T_9_ScaleResUp_histfunc))
         ggHpdfName_syst1Down = "ggH_RooSpinZeroPdf_ScaleResDown_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         ggHpdf_syst1Down = ROOT.HZZ4L_RooSpinZeroPdf_2D(ggHpdfName_syst1Down,ggHpdfName_syst1Down,D1,D2,D3,x,y,phix,phiy,ROOT.RooArgList(Sig_T_1_ScaleResDown_histfunc,Sig_T_2_ScaleResDown_histfunc,Sig_T_3_ScaleResDown_histfunc,Sig_T_4_ScaleResDown_histfunc,Sig_T_5_ScaleResDown_histfunc,Sig_T_6_ScaleResDown_histfunc,Sig_T_7_ScaleResDown_histfunc,Sig_T_8_ScaleResDown_histfunc,Sig_T_9_ScaleResDown_histfunc))
+
+
+        if DEBUG:
+            testhandle = ROOT.TFile("{0}/figs/xcheckPlots_{1}TeV_{2}.root".format(self.outputDir, self.sqrts, self.getChannelName()),"recreate")
+
+            print "Starting to plot signal for sanity checks"
+
+            canvasname = "c_{}_KD1_{}_KD2_{}".format(ggHpdf.GetName(),D1.GetName(),D2.GetName())
+            ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+            ctest.cd()
+            histo3D = ggHpdf.createHistogram("h1temp",D1,ROOT.RooFit.YVar(D2),ROOT.RooFit.ZVar(D3))
+            print "histo3D integral: ",histo3D.Integral()
+            histo = histo3D.Project3D("xy")
+            histo.Draw("colz")
+            testhandle.WriteTObject(ctest)
+            ctest.Close()
+
+            canvasname = "c_{}_KD1_{}_KD2_{}".format(Sig_T_1.GetName(),D1.GetName(),D2.GetName())
+            ctest = ROOT.TCanvas( canvasname, canvasname, 750, 700 )
+            ctest.cd()
+            histo = Sig_T_1.Project3D("xy")
+            print "raw histo integral: ",histo.Integral()
+            histo.Draw("colz")
+            testhandle.WriteTObject(ctest)
+            ctest.Close()
+
+            testhandle.Close()
 
 
         ## ------------------ END 2D SIGNAL SHAPES FOR PROPERTIES ------------------------ ##
@@ -1410,15 +1437,15 @@ class properties_datacardClass_2D:
         T7_integral = ROOT.RooConstVar (T7_integralName,T7_integralName,Sig_T_7.Integral())
         T8_integral = ROOT.RooConstVar (T8_integralName,T8_integralName,Sig_T_8.Integral())
         T9_integral = ROOT.RooConstVar (T9_integralName,T9_integralName,Sig_T_9.Integral())
-        print "T1 ",T1_integral.getVal()
-        print "T2 ",T2_integral.getVal()
-        print "T3 ",T3_integral.getVal()
-        print "T4 ",T4_integral.getVal()
-        print "T5 ",T5_integral.getVal()
-        print "T6 ",T6_integral.getVal()
-        print "T7 ",T7_integral.getVal()
-        print "T8 ",T8_integral.getVal()
-        print "T9 ",T9_integral.getVal()
+        print "T1 integral: ",T1_integral.getVal()
+        print "T2 integral: ",T2_integral.getVal()
+        print "T3 integral: ",T3_integral.getVal()
+        print "T4 integral: ",T4_integral.getVal()
+        print "T5 integral: ",T5_integral.getVal()
+        print "T6 integral: ",T6_integral.getVal()
+        print "T7 integral: ",T7_integral.getVal()
+        print "T8 integral: ",T8_integral.getVal()
+        print "T9 integral: ",T9_integral.getVal()
         r_fai_pures_norm_Name = "sig_PuresNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         r_fai_realints_norm_Name = "sig_RealIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         r_fai_imagints_norm_Name = "sig_ImagIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
@@ -1495,7 +1522,7 @@ class properties_datacardClass_2D:
         bkgRate_zjets_Shape *= rfvSMD_Ratio_Zjets.getVal()
 
         if(DEBUG):
-            print "Shape signal rate: ",sigRate_ggH_Shape,", background rate: ",bkgRate_qqzz_Shape,", ",bkgRate_zjets_Shape," in ",low_M," - ",high_M
+            print "Shape signal rate: ",sigRate_ggH_Shape,", background rate: ",bkgRate_qqzz_Shape,", ",bkgRate_zjets_Shape," in ",self.low_M," - ",self.high_M
             CMS_zz4l_mass.setRange("lowmassregion",100.,160.)
             bkgRate_qqzz_lowmassregion = sclFactorBkg_qqzz * bkg_qqzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("lowmassregion") ).getVal()
             bkgRate_ggzz_lowmassregion = sclFactorBkg_ggzz * bkg_ggzz.createIntegral( ROOT.RooArgSet(CMS_zz4l_mass), ROOT.RooFit.Range("lowmassregion") ).getVal()
