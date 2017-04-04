@@ -4,11 +4,10 @@ import os
 import re
 import math
 from scipy.special import erf
-from ROOT import *
 import ROOT
 from array import array
-from systematicsClass import *
-from inputReader import *
+from systematicsClass import systematicsClass
+from inputReader import inputReader
 
 ## ------------------------------------
 ##  card and workspace class
@@ -34,9 +33,9 @@ class properties_datacardClass_phase:
         ROOT.gSystem.Load("include/HiggsCSandWidthSM4_cc.so")
 
     def getHistFunc(self,newname,hist,Dx,Dy,Dz):
-        fh = FastHisto3D_f(hist)
+        fh = ROOT.FastHisto3D_d(hist)
         obslist = ROOT.RooArgList(Dx,Dy,Dz)
-        fhfcn = FastHisto3DFunc_f(newname,"",obslist,fh)
+        fhfcn = ROOT.FastHisto3DFunc_d(newname,"",obslist,fh)
         return fhfcn
 
     def getChannelName(self):
@@ -60,7 +59,7 @@ class properties_datacardClass_phase:
 
         channelName = self.getChannelName()
 
-        myCSWrhf = HiggsCSandWidth()
+        myCSWrhf = ROOT.HiggsCSandWidth()
 
         histXsBr = ROOT.TH1F("hsmxsbr_{0}_{1}".format(procName,channelName),"", 8905, 109.55, 1000.05)
 
@@ -90,7 +89,7 @@ class properties_datacardClass_phase:
             #print '   CS=',myCSWrhf.HiggsCS(signalProc, mHVal, self.sqrts),'   BR=',BR
 
         rdhname = "rdhXsBr_{0}_{1}_{2}".format(procName,self.channel,self.sqrts)
-        rdhXsBr = RooDataHist(rdhname,rdhname, ROOT.RooArgList(rrvMH), histXsBr)
+        rdhXsBr = ROOT.RooDataHist(rdhname,rdhname, ROOT.RooArgList(rrvMH), histXsBr)
 
         return rdhXsBr
 
@@ -137,7 +136,7 @@ class properties_datacardClass_phase:
         self.bUseCBnoConvolution = False
         ForXSxBR = False
 
-        myCSW = HiggsCSandWidth()
+        myCSW = ROOT.HiggsCSandWidth()
 
         ## ----------------- WIDTH AND RANGES ----------------- ##
         self.widthHVal =  myCSW.HiggsWidth(0,self.mH)
@@ -307,10 +306,10 @@ class properties_datacardClass_phase:
         CMS_zz4l_mean_BW.setVal( mean_BW_d )
         CMS_zz4l_gamma.setVal(0)
         CMS_zz4l_mean_e_sig.setVal(0)
-        CMS_zz4l_mean_e_err.setConstant(kTRUE)
+        CMS_zz4l_mean_e_err.setConstant(True)
         CMS_zz4l_sigma_e_sig.setVal(0)
         CMS_zz4l_mean_m_sig.setVal(0)
-        CMS_zz4l_mean_m_err.setConstant(kTRUE)
+        CMS_zz4l_mean_m_err.setConstant(True)
         CMS_zz4l_sigma_m_sig.setVal(0)
         CMS_zz4l_alpha.setVal(0)
         CMS_zz4l_n.setVal(0)
@@ -743,7 +742,7 @@ class properties_datacardClass_phase:
             print "norm 2p2f 4e: ",nlZjet_2p2f.getVal()
             print "pol0 2p2f 4e: ",p0Zjet_2p2f.getVal()
             print "pol1 2p2f 4e: ",p1Zjet_2p2f.getVal()
-            bkg_zjets_2p2f = ROOT.RooGenericPdf("bkg_zjetsTmp_2p2f","bkg_zjetsTmp_2p2f","(TMath::Landau(@0,@1,@2))*@3*(1.+ TMath::Exp(@4+@5*@0))",RooArgList(CMS_zz4l_mass,mlZjet_2p2f,slZjet_2p2f,nlZjet_2p2f,p0Zjet_2p2f,p1Zjet_2p2f))
+            bkg_zjets_2p2f = ROOT.RooGenericPdf("bkg_zjetsTmp_2p2f","bkg_zjetsTmp_2p2f","(TMath::Landau(@0,@1,@2))*@3*(1.+ TMath::Exp(@4+@5*@0))",ROOT.RooArgList(CMS_zz4l_mass,mlZjet_2p2f,slZjet_2p2f,nlZjet_2p2f,p0Zjet_2p2f,p1Zjet_2p2f))
 
             name = "mlZjet_3p1f_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
             mlZjet_3p1f = ROOT.RooRealVar(name,"mean landau Zjet 3p1f",val_meanL_3P1F)
@@ -859,7 +858,7 @@ class properties_datacardClass_phase:
         czz = ROOT.TCanvas( canv_name, canv_name, 750, 700 )
         czz.cd()
         zzframe_s = CMS_zz4l_mass.frame(45)
-        if self.bUseCBnoConvolution: super(RooDoubleCB,signalCB_ggH).plotOn(zzframe_s, ROOT.RooFit.LineStyle(1), ROOT.RooFit.LineColor(1) )
+        if self.bUseCBnoConvolution: super(ROOT.RooDoubleCB,signalCB_ggH).plotOn(zzframe_s, ROOT.RooFit.LineStyle(1), ROOT.RooFit.LineColor(1) )
         elif self.isHighMass : super(ROOT.RooFFTConvPdf,sig_ggH_HM).plotOn(zzframe_s, ROOT.RooFit.LineStyle(1), ROOT.RooFit.LineColor(1) )
         else : super(ROOT.RooFFTConvPdf,sig_ggH).plotOn(zzframe_s, ROOT.RooFit.LineStyle(1), ROOT.RooFit.LineColor(1) )
         super(ROOT.RooqqZZPdf_v2,bkg_qqzz).plotOn(zzframe_s, ROOT.RooFit.LineStyle(1), ROOT.RooFit.LineColor(4) )
@@ -1253,7 +1252,7 @@ class properties_datacardClass_phase:
 
         rfvSigRate_ggH = ROOT.RooFormulaVar("ggHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_ggH),ROOT.RooArgList(rfvSigEff_ggH, rhfXsBrFuncV_1))
 
-        print "Compare integrals: integral_ggH=",integral_ggH,"  ; calculated=",self.getVariable(signalCB_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),sig_ggH.createIntegral(RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),self.bUseCBnoConvolution)
+        print "Compare integrals: integral_ggH=",integral_ggH,"  ; calculated=",self.getVariable(signalCB_ggH.createIntegral(ROOT.RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),sig_ggH.createIntegral(ROOT.RooArgSet(CMS_zz4l_mass),ROOT.RooFit.Range("shape")).getVal(),self.bUseCBnoConvolution)
 
         rfvSigRate_VBF = ROOT.RooFormulaVar("qqHnorm","@0*@1*1000*{0}*{2}/{1}".format(self.lumi,rrvNormSig.getVal(),integral_VBF),ROOT.RooArgList(rfvSigEff_qqH, rhfXsBrFuncV_2))
 
@@ -1324,9 +1323,9 @@ class properties_datacardClass_phase:
         r_fai_pures_norm_Name = "sig_PuresNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         r_fai_realints_norm_Name = "sig_RealIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
         r_fai_imagints_norm_Name = "sig_ImagIntsNorm_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-        r_fai_pures_norm = ROOT.RooFormulaVar(r_fai_pures_norm_Name,"( (1-abs(@0))*@1+abs(@0)*@2 )/@1",RooArgList(x,T1_integral,T2_integral))
-        r_fai_realints_norm = ROOT.RooFormulaVar(r_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*cos(@1)*@2 )/@3",RooArgList(x,phi,T4_integral,T1_integral))
-        r_fai_imagints_norm = ROOT.RooFormulaVar(r_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*sin(@1)*@2 )/@3",RooArgList(x,phi,T7_integral,T1_integral))
+        r_fai_pures_norm = ROOT.RooFormulaVar(r_fai_pures_norm_Name,"( (1-abs(@0))*@1+abs(@0)*@2 )/@1",ROOT.RooArgList(x,T1_integral,T2_integral))
+        r_fai_realints_norm = ROOT.RooFormulaVar(r_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*cos(@1)*@2 )/@3",ROOT.RooArgList(x,phi,T4_integral,T1_integral))
+        r_fai_imagints_norm = ROOT.RooFormulaVar(r_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*sin(@1)*@2 )/@3",ROOT.RooArgList(x,phi,T7_integral,T1_integral))
 
         self.r_fai_norm = None
         self.r_fai_norm_dec = None
@@ -1337,21 +1336,21 @@ class properties_datacardClass_phase:
         self.rv_fai_imagints_norm = None
         if theOptions.newMu:
           self.r_fai_norm_dec_name = "sig_DecNormPar_{0:.0f}_{1:.0f}".format(self.channel,self.sqrts)
-          self.r_fai_norm_dec = ROOT.RooFormulaVar(self.r_fai_norm_dec_name,"TMath::Max((@0+@1+@2)*(1-abs(@3)),0)",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,alpha_zz4l))
+          self.r_fai_norm_dec = ROOT.RooFormulaVar(self.r_fai_norm_dec_name,"TMath::Max((@0+@1+@2)*(1-abs(@3)),0)",ROOT.RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,alpha_zz4l))
 
           self.rv_fai_pures_norm_Name = "sig_VV_PuresNorm_{0:.0f}".format(self.sqrts)
           self.rv_fai_realints_norm_Name = "sig_VV_RealIntsNorm_{0:.0f}".format(self.sqrts)
           self.rv_fai_imagints_norm_Name = "sig_VV_ImagIntsNorm_{0:.0f}".format(self.sqrts)
           self.rv_fai_norm_prod_Name = "sig_VV_Total_{0:.0f}".format(self.sqrts)
 
-          self.rv_fai_pures_norm = ROOT.RooFormulaVar(self.rv_fai_pures_norm_Name,"( (1-abs(@0))*@1+abs(@0)*@2 )/@1",RooArgList(x,self.sigmaVVaiVal["T1"],self.sigmaVVaiVal["T2"]))
-          self.rv_fai_realints_norm = ROOT.RooFormulaVar(self.rv_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*cos(@1)*@2 )/@3",RooArgList(x,phi,self.sigmaVVaiVal["T4"],self.sigmaVVaiVal["T1"]))
-          self.rv_fai_imagints_norm = ROOT.RooFormulaVar(self.rv_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*sin(@1)*@2 )/@3",RooArgList(x,phi,self.sigmaVVaiVal["T7"],self.sigmaVVaiVal["T1"]))
-          self.rv_fai_norm_prod = ROOT.RooFormulaVar(self.rv_fai_norm_prod_Name,"TMath::Max((@0+@1+@2),0)",RooArgList(self.rv_fai_pures_norm,self.rv_fai_realints_norm,self.rv_fai_imagints_norm))
+          self.rv_fai_pures_norm = ROOT.RooFormulaVar(self.rv_fai_pures_norm_Name,"( (1-abs(@0))*@1+abs(@0)*@2 )/@1",ROOT.RooArgList(x,self.sigmaVVaiVal["T1"],self.sigmaVVaiVal["T2"]))
+          self.rv_fai_realints_norm = ROOT.RooFormulaVar(self.rv_fai_realints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*cos(@1)*@2 )/@3",ROOT.RooArgList(x,phi,self.sigmaVVaiVal["T4"],self.sigmaVVaiVal["T1"]))
+          self.rv_fai_imagints_norm = ROOT.RooFormulaVar(self.rv_fai_imagints_norm_Name,"( sign(@0)*sqrt(abs(@0)*(1-abs(@0)))*sin(@1)*@2 )/@3",ROOT.RooArgList(x,phi,self.sigmaVVaiVal["T7"],self.sigmaVVaiVal["T1"]))
+          self.rv_fai_norm_prod = ROOT.RooFormulaVar(self.rv_fai_norm_prod_Name,"TMath::Max((@0+@1+@2),0)",ROOT.RooArgList(self.rv_fai_pures_norm,self.rv_fai_realints_norm,self.rv_fai_imagints_norm))
 
-          self.r_fai_norm = ROOT.RooFormulaVar("ggH_norm","@0*(@1*@2 + @3*@4*@5)",RooArgList(self.r_fai_norm_dec, self.muF,self.CSfracff, self.muV,self.rv_fai_norm_prod,self.CSfracVV))
+          self.r_fai_norm = ROOT.RooFormulaVar("ggH_norm","@0*(@1*@2 + @3*@4*@5)",ROOT.RooArgList(self.r_fai_norm_dec, self.muF,self.CSfracff, self.muV,self.rv_fai_norm_prod,self.CSfracVV))
         else:
-          self.r_fai_norm = ROOT.RooFormulaVar("ggH_norm","TMath::Max((@0+@1+@2)*(1-abs(@3)),0)",RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,alpha_zz4l))
+          self.r_fai_norm = ROOT.RooFormulaVar("ggH_norm","TMath::Max((@0+@1+@2)*(1-abs(@3)),0)",ROOT.RooArgList(r_fai_pures_norm,r_fai_realints_norm,r_fai_imagints_norm,alpha_zz4l))
 
         ## ----------------------- BACKGROUND RATES ----------------------- ##
 
@@ -1452,14 +1451,15 @@ class properties_datacardClass_phase:
         if(DEBUG): print name_Shape,"  ",name_ShapeWS2
 
         w = ROOT.RooWorkspace("w","w")
-
-        w.importClassCode(RooqqZZPdf_v2.Class(),True)
-        w.importClassCode(RooggZZPdf_v2.Class(),True)
-        w.importClassCode(HZZ4L_RooSpinZeroPdf_phase.Class(),True)
-        w.importClassCode(RooFormulaVar.Class(),True)
+        #w.importClassCode(ROOT.RooqqZZPdf_v2.Class(),True)
+        #w.importClassCode(ROOT.RooggZZPdf_v2.Class(),True)
+        #w.importClassCode(ROOT.FastHistoFunc_f.Class(),True)
+        #w.importClassCode(ROOT.FastHisto2DFunc_f.Class(),True)
+        w.importClassCode(ROOT.FastHisto3DFunc_f.Class(),True)
+        w.importClassCode(ROOT.HZZ4L_RooSpinZeroPdf_phase_fast.Class(),True)
+        w.importClassCode(ROOT.RooFormulaVar.Class(),True)
         if self.isHighMass :
-            w.importClassCode(RooRelBWHighMass.Class(),True)
-
+            w.importClassCode(ROOT.RooRelBWHighMass.Class(),True)
 
 
         getattr(w,'import')(data_obs,ROOT.RooFit.Rename("data_obs")) ### Should this be renamed?
